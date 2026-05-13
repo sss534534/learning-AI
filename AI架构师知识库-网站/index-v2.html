@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI架构师知识库 | The Architect's Knowledge Base</title>
+    
+    <!-- Distinctive Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;0,9..144,900;1,9..144,400&family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ═══════════════════════════════════════════════════════════════
+           DESIGN SYSTEM: Editorial Technical
+           A knowledge base that feels like a refined technical journal
+        ═══════════════════════════════════════════════════════════════ */
+        
+        :root {
+            /* Color Palette - Warm Editorial */
+            --bg-primary: #F7F4ED;
+            --bg-secondary: #EDE9E0;
+            --bg-card: #FFFFFF;
+            --bg-accent: #1A3A32;
+            
+            --text-primary: #1A1A1A;
+            --text-secondary: #4A4A4A;
+            --text-muted: #7A7A7A;
+            --text-inverse: #F7F4ED;
+            
+            --accent-copper: #B87333;
+            --accent-teal: #2D6A6A;
+            --accent-wine: #722F37;
+            --accent-ink: #1E3A5F;
+            
+            --border-light: rgba(26, 26, 26, 0.1);
+            --border-medium: rgba(26, 26, 26, 0.2);
+            --border-accent: #B87333;
+            
+            /* Typography Scale */
+            --font-display: 'Fraunces', Georgia, serif;
+            --font-body: 'Crimson Pro', Georgia, serif;
+            --font-mono: 'JetBrains Mono', 'Consolas', monospace;
+            
+            /* Spacing */
+            --space-xs: 0.25rem;
+            --space-sm: 0.5rem;
+            --space-md: 1rem;
+            --space-lg: 2rem;
+            --space-xl: 4rem;
+            --space-2xl: 8rem;
+            
+            /* Transitions */
+            --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+            --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+        }
+        
+        /* ═══════════════════════════════════════════════════════════════
+           BASE RESET & TYPOGRAPHY
+        ═══════════════════════════════════════════════════════════════ */
+        
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+            font-size: 18px;
+        }
+        
+        @media (max-width: 768px) {
+            html { font-size: 16px; }
+        }
+        
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        /* Subtle paper texture overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23noise)'/%3E%3C/svg%3E");
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        
+        ::selection {
+            background: var(--accent-copper);
+            color: var(--text-inverse);
+        }
+        
+        /* ═══════════════════════════════════════════════════════════════
+           NAVIGATION - Minimal Editorial Header
+        ═══════════════════════════════════════════════════════════════ */
+        
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(247, 244, 237, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-light);
+        }
+        
+        .nav-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-brand {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .nav-brand::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--accent-copper);
+            transform: rotate(45deg);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+        
+        .nav-links a {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.5rem 0;
+            position: relative;
+            transition: color 0.3s var(--ease-out);
+        }
+        
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--accent-copper);
+            transition: width 0.4s var(--ease-out);
+        }
+        
+        .nav-links a:hover {
+            color: var(--text-primary);
+        }
+        
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+        }
+        
+        /* ═══════════════════════════════════════════════════════════════
+           HERO - Editorial Masthead
+        ═══════════════════════════════════════════════════════════════ */
+        
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 8rem 2rem 4rem;
+            position: relative;
+        }
+        
+        .hero-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .hero-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--text-muted);
+        }
+        
+        .hero-meta::before {
+            content: '';
+            width: 40px;
+            height: 1px;
+            background: var(--accent-copper);
+        }
+        
+        .hero-title {
+            font-family: var(--font-display);
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 300;
+            line-height: 1.05;
+            letter-spacing: -0.03em;
+            margin-bottom: 1.5rem;
+            max-width: 900px;
+        }
+        
+        .hero-title em {
+            font-style: italic;
+            font-weight: 500;
+            color: var(--accent-copper);
+        }
+        
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin-bottom: 3rem;
+            line-height: 1.8;
+        }
+        
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 2rem;
+            padding-top: 3rem;
+            border-top: 1px solid var(--border-light);
+            max-width: 600px;
+        }
+        
+        .stat {
+            position: relative;
+        }
+        
+        .stat-number {
+            font-family: var(--font-display);
+            font-size: 3rem;
+            font-weight: 700;
+            line-height: 1;
+            color: var(--accent-ink);
+        }
+        
+        .stat-label {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+        
+        /* Decorative corner element */
+        .hero-decoration {
+            position: absolute;
+            top: 8rem;
+            right: 4rem;
+            width: 200px;
+            height: 200px;
+            border: 1px solid var(--border-light);
+            opacity: 0.5;
+        }
+        
+        .hero-decoration::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            border: 1px solid var(--accent-copper);
+            opacity: 0.3;
+        }
+        
+        @media (max-width: 768px) {
+            .hero-decoration { display: none; }
+        }
+        
+        /* ═══════════════════════════════════════════════════════════════
+           SECTIONS - Common Styles
+        ═══════════════════════════════════════════════════════════════ */
+        
+        .section {
+            padding: 6rem 2rem;
+            position: relative;
+        }
+        
+        .section-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .section-header {
+            margin-bottom: 4rem;
+        }
+        
+        .section-number {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--accent-copper);
+            margin-bottom: 1rem;
+            display: block;
+        }
+        
+        .section-title {
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 500;
+            letter-spacing: -0.02em;
+            margin-bottom: 1rem;
+        }
+        
+        .section-desc {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+        }
+        
+        /* ═══════════════════════════════════════════════════════════════
+           MODULES GRID - Card System
+        ═══════════════════════════════════════════════════════════════ */
+        
+        .modules {
+            background: var(--bg-secondary);
+        }
+        
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        @media (max-width: 480px) {
+            .modules-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .module-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            padding: 2rem;
+            position: relative;
+            transition: all 0.4s var(--ease-out);
+        }
+        
+        .module-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 0;
+            background: var(--accent-copper);
+            transition: height 0.4s var(--ease-out);
+        }
+        
+        .module-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            border-color: var(--border-medium);
+        }
+        
+        .module-card:hover::before {
+            height: 100%;
+        }
+        
+        .module-number {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+        }
+        
+        .module-title {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.01em;
+        }
+        
+        .module-desc {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.7;
+        }
+        
+        .module-docs {
+            border-top: 1px solid var(--border-light);
+            padding-top: 1.5rem;
+        }
+        
+        .doc-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px dashed var(--border-light);
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.3s var(--ease-out);
+        }
+        
+        .doc-item:last-child {
+            border-bottom: none;
+        }
+        
+        .doc-item:hover {
+            padding-left: 0.5rem;
+            color: var(--accent-copper);
+        }
+        
+        .doc-item span {
+            font-family: var(--font-body);
+            font-size: 0.95rem;
+        }
+        
+        .doc-item::after {
+            content: '→';
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            transition: transform 0.3s var(--ease-out);
+        }
+        
+        .doc-item:hover::after {
+            transform: translateX(4px);
+            color: var(--accent-copper);
+        }
+        
+        /* ═══════════════════════════════════════════════════════════════
+           LEARNING PATH - Timeline
+        ═══════════════════════════════════════════════════════════════ */
+        
+        .path {
+            background: var(--bg-primary);
+        }
+        
+        .timeline {
+            position: relative;
+            padding-left: 3rem;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: linear-gradient(
+                to bottom,
+                var(--accent-copper),
+                var(--accent-ink),
+                var(--accent-teal)
+            );
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding-bottom: 3rem;
+        }
+        
+        .timeline-item:last-child {
+            padding-bottom: 0;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -3rem;
+            top: 0.5rem;
+            width: 9px;
+            height: 9px;
+            background: var(--bg-primary);
+            border: 2px solid var(--accent-copper);
+            transform: translateX(-50%) rotate(45deg);
+        }
+        
+        .timeline-phase {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--accent-copper);
+            margin-bottom: 0.5rem;
+        }
+        
+        .timeline-title {
+            font-family: var(--font-display);
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.01em;
+        }
+        
+        .timeline-content {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            max-width: 500px;
+            margin-bottom: 1rem;
+        }
+        
+        .timeline-duration {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .timeline-duration::before {
+            content: '◷';
+            font-size: 1rem;
+        }
+        
+        /* ═══════════════════════════════════════════════════════════════
+           CASES - Featured Projects
+        ═══════════════════════════════════════════════════════════════ */
+        
+        .cases {
+            background: var(--bg-accent);
+            color: var(--text-inverse);
+        }
+        
+        .cases .section-number {
+            color: var(--accent-copper);
+        }
+        
+        .cases .section-desc {
+            color: rgba(247, 244, 237, 0.7);
+        }
+        
+        .cases-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .case-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            transition: all 0.4s var(--ease-out);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .case-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, transparent 50%, rgba(184, 115, 51, 0.2) 50%);
+        }
+        
+        .case-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+        }
+        
+        .case-tag {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent-copper);
+            margin-bottom: 1rem;
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border: 1px solid var(--accent-copper);
+        }
+        
+        .case-title {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.01em;
+        }
+        
+        .case-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .case-meta-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+        }
+        
+        .case-meta-label {
+            color: rgba(247, 244, 237, 0.5);
+        }
+        
+        .case-meta-value {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+        }
+        
+        .case-link {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent-copper);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: gap 0.3s var(--ease-out);
+        }
+        
+        .case-link:hover {
+            gap: 1rem;
+        }
+        
+        .case-link::after {
+            content: '→';
+        }
+        
+        /* ═══════════════════════════════════════════════════════════════
+           FOOTER
+        ═══════════════════════════════════════════════════════════════ */
+        
+        .footer {
+            padding: 4rem 2rem;
+            background: var(--bg-primary);
+            border-top: 1px solid var(--border-light);
+        }
+        
+        .footer-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+        
+        .footer-brand {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+        
+        .footer-text {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+        }
+        
+        /* ═══════════════════════════════════════════════════════════════
+           ANIMATIONS
+        ═══════════════════════════════════════════════════════════════ */
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .animate {
+            opacity: 0;
+            animation: fadeInUp 0.8s var(--ease-out) forwards;
+        }
+        
+        .animate-delay-1 { animation-delay: 0.1s; }
+        .animate-delay-2 { animation-delay: 0.2s; }
+        .animate-delay-3 { animation-delay: 0.3s; }
+        .animate-delay-4 { animation-delay: 0.4s; }
+        .animate-delay-5 { animation-delay: 0.5s; }
+        
+        /* Scroll reveal */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s var(--ease-out);
+        }
+        
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* ═══════════════════════════════════════════════════════════════
+           RESPONSIVE ADJUSTMENTS
+        ═══════════════════════════════════════════════════════════════ */
+        
+        @media (max-width: 768px) {
+            .hero {
+                padding: 6rem 1.5rem 3rem;
+            }
+            
+            .section {
+                padding: 4rem 1.5rem;
+            }
+            
+            .timeline {
+                padding-left: 2rem;
+            }
+            
+            .timeline-item::before {
+                left: -2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ═══════════════════════════════════════════════════════════════
+         NAVIGATION
+    ═══════════════════════════════════════════════════════════════ -->
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="#" class="nav-brand">AI架构师知识库</a>
+            <ul class="nav-links">
+                <li><a href="#modules">知识模块</a></li>
+                <li><a href="#path">学习路径</a></li>
+                <li><a href="#cases">架构案例</a></li>
+                <li><a href="#about">关于</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         HERO - Editorial Masthead
+    ═══════════════════════════════════════════════════════════════ -->
+    <header class="hero">
+        <div class="hero-decoration"></div>
+        <div class="hero-inner">
+            <div class="hero-meta animate">Knowledge Base for Architects</div>
+            <h1 class="hero-title animate animate-delay-1">
+                从系统架构师到<br><em>AI架构师</em>的进化之路
+            </h1>
+            <p class="hero-subtitle animate animate-delay-2">
+                系统化的AI架构知识体系，涵盖LLM基础理论、RAG架构设计、Agent系统、AI基础设施与LLMOps，助你掌握生产级AI应用架构设计能力。
+            </p>
+            <div class="hero-stats animate animate-delay-3">
+                <div class="stat">
+                    <div class="stat-number">17</div>
+                    <div class="stat-label">深度技术文档</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">6</div>
+                    <div class="stat-label">核心知识模块</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">4</div>
+                    <div class="stat-label">生产级案例</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         MODULES - Knowledge Areas
+    ═══════════════════════════════════════════════════════════════ -->
+    <section class="section modules" id="modules">
+        <div class="section-inner">
+            <header class="section-header reveal">
+                <span class="section-number">Section 01</span>
+                <h2 class="section-title">六大核心知识模块</h2>
+                <p class="section-desc">从理论基础到工程实践，构建完整的AI架构师知识体系</p>
+            </header>
+            
+            <div class="modules-grid">
+                <!-- Module 01 -->
+                <article class="module-card reveal">
+                    <div class="module-number">Module 01</div>
+                    <h3 class="module-title">LLM基础理论</h3>
+                    <p class="module-desc">深入理解Transformer架构、注意力机制、大模型训练原理与选型策略</p>
+                    <div class="module-docs">
+                        <a href="#" class="doc-item"><span>Transformer架构详解</span></a>
+                        <a href="#" class="doc-item"><span>大模型原理与选型</span></a>
+                    </div>
+                </article>
+                
+                <!-- Module 02 -->
+                <article class="module-card reveal">
+                    <div class="module-number">Module 02</div>
+                    <h3 class="module-title">模型工程化</h3>
+                    <p class="module-desc">掌握模型量化、推理优化、部署框架等生产级模型服务技术</p>
+                    <div class="module-docs">
+                        <a href="#" class="doc-item"><span>模型量化技术</span></a>
+                        <a href="#" class="doc-item"><span>推理优化技术</span></a>
+                    </div>
+                </article>
+                
+                <!-- Module 03 -->
+                <article class="module-card reveal">
+                    <div class="module-number">Module 03</div>
+                    <h3 class="module-title">RAG架构设计</h3>
+                    <p class="module-desc">检索增强生成架构模式、向量数据库选型、混合检索与性能优化</p>
+                    <div class="module-docs">
+                        <a href="#" class="doc-item"><span>RAG架构模式总览</span></a>
+                        <a href="#" class="doc-item"><span>检索策略与优化</span></a>
+                    </div>
+                </article>
+                
+                <!-- Module 04 -->
+                <article class="module-card reveal">
+                    <div class="module-number">Module 04</div>
+                    <h3 class="module-title">Agent系统架构</h3>
+                    <p class="module-desc">智能体设计模式、Multi-Agent协作、规划策略与工具调用</p>
+                    <div class="module-docs">
+                        <a href="#" class="doc-item"><span>Agent架构演进</span></a>
+                        <a href="#" class="doc-item"><span>Multi-Agent协作架构</span></a>
+                    </div>
+                </article>
+                
+                <!-- Module 05 -->
+                <article class="module-card reveal">
+                    <div class="module-number">Module 05</div>
+                    <h3 class="module-title">AI基础设施</h3>
+                    <p class="module-desc">GPU集群调度、Kubernetes+AI、模型服务部署与推理优化</p>
+                    <div class="module-docs">
+                        <a href="#" class="doc-item"><span>GPU集群调度</span></a>
+                        <a href="#" class="doc-item"><span>模型服务与推理优化</span></a>
+                    </div>
+                </article>
+                
+                <!-- Module 06 -->
+                <article class="module-card reveal">
+                    <div class="module-number">Module 06</div>
+                    <h3 class="module-title">LLMOps体系</h3>
+                    <p class="module-desc">Prompt工程体系、可观测性治理、成本优化与A/B测试框架</p>
+                    <div class="module-docs">
+                        <a href="#" class="doc-item"><span>Prompt工程体系</span></a>
+                        <a href="#" class="doc-item"><span>可观测性与治理</span></a>
+                        <a href="#" class="doc-item"><span>成本优化与A/B测试</span></a>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         LEARNING PATH - Timeline
+    ═══════════════════════════════════════════════════════════════ -->
+    <section class="section path" id="path">
+        <div class="section-inner">
+            <header class="section-header reveal">
+                <span class="section-number">Section 02</span>
+                <h2 class="section-title">四阶段学习路径</h2>
+                <p class="section-desc">循序渐进，从基础到实战，6个月掌握AI架构设计</p>
+            </header>
+            
+            <div class="timeline">
+                <div class="timeline-item reveal">
+                    <div class="timeline-phase">Phase One</div>
+                    <h3 class="timeline-title">基础夯实</h3>
+                    <p class="timeline-content">深入理解Transformer架构、注意力机制、大模型原理。掌握RAG核心概念和基础架构模式。</p>
+                    <div class="timeline-duration">第1-2个月</div>
+                </div>
+                
+                <div class="timeline-item reveal">
+                    <div class="timeline-phase">Phase Two</div>
+                    <h3 class="timeline-title">架构实战</h3>
+                    <p class="timeline-content">学习模型量化、推理优化技术。掌握Agent系统设计、状态管理、工具调用等核心能力。</p>
+                    <div class="timeline-duration">第3-4个月</div>
+                </div>
+                
+                <div class="timeline-item reveal">
+                    <div class="timeline-phase">Phase Three</div>
+                    <h3 class="timeline-title">生产级能力</h3>
+                    <p class="timeline-content">掌握GPU集群调度、K8s+AI部署。建立完整的LLMOps体系，包括可观测性、成本优化。</p>
+                    <div class="timeline-duration">第5-6个月</div>
+                </div>
+                
+                <div class="timeline-item reveal">
+                    <div class="timeline-phase">Phase Four</div>
+                    <h3 class="timeline-title">架构实战</h3>
+                    <p class="timeline-content">深入分析企业级RAG、智能客服Agent、AI代码助手等生产级架构案例，融会贯通。</p>
+                    <div class="timeline-duration">贯穿全程</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         CASES - Featured Projects
+    ═══════════════════════════════════════════════════════════════ -->
+    <section class="section cases" id="cases">
+        <div class="section-inner">
+            <header class="section-header reveal">
+                <span class="section-number">Section 03</span>
+                <h2 class="section-title">生产级架构案例</h2>
+                <p class="section-desc">真实场景下的架构设计，从需求分析到技术选型再到落地实现</p>
+            </header>
+            
+            <div class="cases-grid">
+                <article class="case-card reveal">
+                    <span class="case-tag">金融</span>
+                    <h3 class="case-title">企业级RAG知识库系统</h3>
+                    <div class="case-meta">
+                        <div class="case-meta-item">
+                            <span class="case-meta-label">核心技术</span>
+                            <span class="case-meta-value">权限感知RAG、混合检索</span>
+                        </div>
+                        <div class="case-meta-item">
+                            <span class="case-meta-label">数据规模</span>
+                            <span class="case-meta-value">50万文档</span>
+                        </div>
+                        <div class="case-meta-item">
+                            <span class="case-meta-label">查询性能</span>
+                            <span class="case-meta-value">50万QPS</span>
+                        </div>
+                    </div>
+                    <a href="#" class="case-link">查看详情</a>
+                </article>
+                
+                <article class="case-card reveal">
+                    <span class="case-tag">电商</span>
+                    <h3 class="case-title">智能客服Agent系统</h3>
+                    <div class="case-meta">
+                        <div class="case-meta-item">
+                            <span class="case-meta-label">核心技术</span>
+                            <span class="case-meta-value">LangGraph、多工具调用</span>
+                        </div>
+                        <div class="case-meta-item">
+                            <span class="case-meta-label">日咨询量</span>
+                            <span class="case-meta-value">20万</span>
+                        </div>
+                        <div class="case-meta-item">
+                            <span class="case-meta-label">解决率</span>
+                            <span class="case-meta-value">85%</span>
+                        </div>
+                    </div>
+                    <a href="#" class="case-link">查看详情</a>
+                </article>
+                
+                <article class="case-card reveal">
+                    <span class="case-tag">开发工具</span>
+                    <h3 class="case-title">AI代码助手平台</h3>
+                    <div class="case-meta">
+                        <div class="case-meta-item">
+                            <span class="case-meta-label">核心技术</span>
+                            <span class="case-meta-value">FIM补全、代码库RAG</span>
+                        </div>
+                        <div class="case-meta-item">
+                            <span class="case-meta-label">开发者数</span>
+                            <span class="case-meta-value">5000+</span>
+                        </div>
+                        <div class="case-meta-item">
+                            <span class="case-meta-label">代码采纳率</span>
+                            <span class="case-meta-value">40%</span>
+                        </div>
+                    </div>
+                    <a href="#" class="case-link">查看详情</a>
+                </article>
+                
+                <article class="case-card reveal">
+                    <span class="case-tag">基础设施</span>
+                    <h3 class="case-title">多模型路由网关</h3>
+                    <div class="case-meta">
+                        <div class="case-meta-item">
+                            <span class="case-meta-label">核心技术</span>
+                            <span class="case-meta-value">智能路由、故障转移</span>
+                        </div>
+                        <div class="case-meta-item">
+                            <span class="case-meta-label">月Token量</span>
+                            <span class="case-meta-value">110M</span>
+                        </div>
+                        <div class="case-meta-item">
+                            <span class="case-meta-label">可用性</span>
+                            <span class="case-meta-value">99.99%</span>
+                        </div>
+                    </div>
+                    <a href="#" class="case-link">查看详情</a>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         FOOTER
+    ═══════════════════════════════════════════════════════════════ -->
+    <footer class="footer" id="about">
+        <div class="footer-inner">
+            <div class="footer-brand">AI架构师知识库</div>
+            <div class="footer-text">
+                系统架构师转型AI架构师的完整知识体系 · 持续更新中
+            </div>
+        </div>
+    </footer>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         JAVASCRIPT - Interactions
+    ═══════════════════════════════════════════════════════════════ -->
+    <script>
+        // Smooth scroll for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // Scroll reveal animation
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.reveal').forEach(el => {
+            revealObserver.observe(el);
+        });
+        
+        // Staggered animation for grid items
+        const gridObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry, index) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => {
+                        entry.target.classList.add('visible');
+                    }, index * 100);
+                    gridObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        document.querySelectorAll('.module-card, .case-card').forEach((el, i) => {
+            el.style.transitionDelay = `${i * 0.05}s`;
+            gridObserver.observe(el);
+        });
+    </script>
+</body>
+</html>

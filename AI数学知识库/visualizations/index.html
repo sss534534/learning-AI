@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI数学知识库 - 可视化学习</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #1a365d 0%, #2d3748 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            color: #fff;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            color: #a0aec0;
+            font-size: 1.2rem;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+        
+        .nav-tab {
+            padding: 12px 24px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+        }
+        
+        .nav-tab:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+        
+        .nav-tab.active {
+            background: #4299e1;
+            border-color: #4299e1;
+        }
+        
+        .visualization-section {
+            display: none;
+            background: #fff;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .visualization-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+            color: #1a365d;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #4299e1;
+        }
+        
+        .section-intro {
+            background: linear-gradient(135deg, #ebf8ff 0%, #e6fffa 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border-left: 4px solid #4299e1;
+        }
+        
+        /* 注意力机制可视化 */
+        .attention-demo {
+            position: relative;
+            padding: 30px;
+            background: #f8fafc;
+            border-radius: 16px;
+            margin-bottom: 30px;
+        }
+        
+        .tokens-row {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .token {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: bold;
+            transition: all 0.5s ease;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .token:hover {
+            transform: scale(1.1);
+        }
+        
+        .token-index {
+            font-size: 1.5rem;
+        }
+        
+        .token-text {
+            font-size: 0.8rem;
+            margin-top: 5px;
+        }
+        
+        .attention-matrix {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+            max-width: 450px;
+            margin: 0 auto 30px;
+            padding: 20px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .matrix-cell {
+            aspect-ratio: 1;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            color: #fff;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .matrix-cell:hover {
+            transform: scale(1.1);
+            z-index: 10;
+        }
+        
+        .formula-box {
+            background: linear-gradient(135deg, #1a365d 0%, #2d3748 100%);
+            color: #fff;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .formula-box .formula {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+        }
+        
+        .formula-box .explanation {
+            font-size: 0.9rem;
+            color: #a0aec0;
+            font-family: sans-serif;
+        }
+        
+        /* Transformer可视化 */
+        .transformer-viz {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+        
+        .layer {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 25px;
+            position: relative;
+        }
+        
+        .layer-label {
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: #4299e1;
+            color: #fff;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+        
+        .layer-content {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .component {
+            padding: 15px 25px;
+            border-radius: 10px;
+            text-align: center;
+            min-width: 120px;
+            transition: all 0.3s;
+        }
+        
+        .component:hover {
+            transform: translateY(-5px);
+        }
+        
+        .component.mha {
+            background: linear-gradient(135deg, #c6f6d5 0%, #9ae6b4 100%);
+            border: 2px solid #38a169;
+        }
+        
+        .component.norm {
+            background: linear-gradient(135deg, #81e6d9 0%, #4fd1c5 100%);
+            border: 2px solid #319795;
+        }
+        
+        .component.ffn {
+            background: linear-gradient(135deg, #e9d8fd 0%, #d6bcfa 100%);
+            border: 2px solid #805ad5;
+        }
+        
+        .component-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #1a365d;
+        }
+        
+        .component-sub {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .arrow-down {
+            text-align: center;
+            font-size: 2rem;
+            color: #4299e1;
+            animation: bounce 1s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        /* 梯度下降可视化 */
+        .gradient-viz {
+            position: relative;
+            height: 400px;
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+        
+        #gradientCanvas {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .control-label {
+            font-weight: bold;
+            color: #1a365d;
+            font-size: 0.9rem;
+        }
+        
+        input[type="range"] {
+            width: 200px;
+            accent-color: #4299e1;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(66, 153, 225, 0.4);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #718096 0%, #4a5568 100%);
+        }
+        
+        /* 扩散模型可视化 */
+        .diffusion-container {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        
+        .diffusion-column {
+            text-align: center;
+        }
+        
+        .diffusion-column h4 {
+            margin-bottom: 20px;
+            color: #1a365d;
+        }
+        
+        .diffusion-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .diffusion-step {
+            width: 150px;
+            height: 150px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: bold;
+            transition: all 0.5s ease;
+        }
+        
+        .diffusion-step .step-num {
+            font-size: 2rem;
+            opacity: 0.5;
+        }
+        
+        .diffusion-step .step-label {
+            font-size: 0.8rem;
+            margin-top: 5px;
+        }
+        
+        /* MoE可视化 */
+        .moe-viz {
+            position: relative;
+            height: 450px;
+            background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%);
+            border-radius: 16px;
+            padding: 20px;
+        }
+        
+        #moeCanvas {
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* InfoNCE可视化 */
+        .infonce-viz {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        .embedding-space {
+            position: relative;
+            height: 350px;
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        
+        #embeddingCanvas {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .legend {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .legend-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+        
+        /* 数学公式卡片 */
+        .formula-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .formula-card {
+            background: linear-gradient(135deg, #ebf8ff 0%, #e6fffa 100%);
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 4px solid #4299e1;
+        }
+        
+        .formula-card h4 {
+            color: #1a365d;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        
+        .formula-card .math {
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            color: #2d3748;
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .formula-card .desc {
+            font-size: 0.9rem;
+            color: #718096;
+        }
+        
+        /* 页脚 */
+        footer {
+            text-align: center;
+            margin-top: 60px;
+            padding: 30px;
+            color: #a0aec0;
+        }
+        
+        footer a {
+            color: #4299e1;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎨 AI数学知识库 - 交互式可视化</h1>
+            <p class="subtitle">通过动画和交互深入理解复杂的数学概念</p>
+        </header>
+        
+        <nav class="nav-tabs">
+            <button class="nav-tab active" onclick="showSection('attention')">注意力机制</button>
+            <button class="nav-tab" onclick="showSection('transformer')">Transformer架构</button>
+            <button class="nav-tab" onclick="showSection('gradient')">梯度下降</button>
+            <button class="nav-tab" onclick="showSection('diffusion')">扩散模型</button>
+            <button class="nav-tab" onclick="showSection('moe')">MoE架构</button>
+            <button class="nav-tab" onclick="showSection('infonce')">对比学习</button>
+        </nav>
+        
+        <!-- 注意力机制 -->
+        <section id="attention" class="visualization-section active">
+            <h2 class="section-title">🧠 注意力机制 (Attention Mechanism)</h2>
+            
+            <div class="section-intro">
+                <strong>核心思想：</strong>注意力机制允许模型在处理序列数据时，自动学习关注输入的不同部分。
+                通过计算Query、Key、Value的相似度，模型可以动态地分配"注意力"权重。
+            </div>
+            
+            <div class="attention-demo">
+                <div class="tokens-row">
+                    <div class="token" style="background: linear-gradient(135deg, #4299e1, #3182ce);">
+                        <span class="token-index">0</span>
+                        <span class="token-text">The</span>
+                    </div>
+                    <div class="token" style="background: linear-gradient(135deg, #805ad5, #6b46c1);">
+                        <span class="token-index">1</span>
+                        <span class="token-text">cat</span>
+                    </div>
+                    <div class="token" style="background: linear-gradient(135deg, #ed8936, #dd6b20);">
+                        <span class="token-index">2</span>
+                        <span class="token-text">sat</span>
+                    </div>
+                    <div class="token" style="background: linear-gradient(135deg, #38a169, #2f855a);">
+                        <span class="token-index">3</span>
+                        <span class="token-text">on</span>
+                    </div>
+                </div>
+                
+                <div class="attention-matrix" id="attentionMatrix">
+                    <!-- 由JavaScript动态生成 -->
+                </div>
+                
+                <div class="formula-box">
+                    <div class="formula">Attention(Q, K, V) = softmax(QK^T / √d) × V</div>
+                    <div class="explanation">
+                        Q、K、V 分别表示查询、键、值向量 | d 是向量维度 | 通过点积计算相似度，经过Softmax归一化
+                    </div>
+                </div>
+            </div>
+            
+            <div class="formula-cards">
+                <div class="formula-card">
+                    <h4>📊 Scaled Dot-Product Attention</h4>
+                    <div class="math">score(q, k) = q · k^T / √d</div>
+                    <p class="desc">使用点积计算注意力分数，除以√d防止梯度消失</p>
+                </div>
+                <div class="formula-card">
+                    <h4>📈 Softmax 归一化</h4>
+                    <div class="math">αᵢ = exp(scoreᵢ) / Σⱼexp(scoreⱼ)</div>
+                    <p class="desc">将分数转换为概率分布，所有权重和为1</p>
+                </div>
+                <div class="formula-card">
+                    <h4>🔗 Multi-Head Attention</h4>
+                    <div class="math">MultiHead = Concat(head₁,...,headₕ)W⁰</div>
+                    <p class="desc">多个注意力头并行学习不同类型的依赖关系</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Transformer架构 -->
+        <section id="transformer" class="visualization-section">
+            <h2 class="section-title">🏛️ Transformer 架构</h2>
+            
+            <div class="section-intro">
+                <strong>核心思想：</strong>Transformer通过自注意力和前馈网络构建强大的序列建模能力，
+                完全基于注意力机制，抛弃了传统的RNN结构，实现了并行计算和长距离依赖建模。
+            </div>
+            
+            <div class="transformer-viz">
+                <!-- 编码器 -->
+                <div class="layer">
+                    <span class="layer-label">编码器 (Encoder) × N</span>
+                    <div class="layer-content">
+                        <div class="component" style="background: #ebf8ff; border: 2px solid #4299e1;">
+                            <div class="component-name">输入嵌入</div>
+                            <div class="component-sub">Input Embedding</div>
+                        </div>
+                        <div class="component" style="background: #fffaf0; border: 2px solid #ed8936;">
+                            <div class="component-name">位置编码</div>
+                            <div class="component-sub">+ Positional Encoding</div>
+                        </div>
+                        <div class="component mha">
+                            <div class="component-name">Multi-Head</div>
+                            <div class="component-name">Self-Attention</div>
+                        </div>
+                        <div class="component norm">
+                            <div class="component-name">+ Add &amp; Norm</div>
+                        </div>
+                        <div class="component ffn">
+                            <div class="component-name">Feed Forward</div>
+                            <div class="component-sub">FFN</div>
+                        </div>
+                        <div class="component norm">
+                            <div class="component-name">+ Add &amp; Norm</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="arrow-down">⬇</div>
+                
+                <!-- 解码器 -->
+                <div class="layer">
+                    <span class="layer-label">解码器 (Decoder) × N</span>
+                    <div class="layer-content">
+                        <div class="component" style="background: #faf5ff; border: 2px solid #805ad5;">
+                            <div class="component-name">输出嵌入</div>
+                            <div class="component-sub">Output Embedding</div>
+                        </div>
+                        <div class="component" style="background: #fffaf0; border: 2px solid #ed8936;">
+                            <div class="component-name">位置编码</div>
+                            <div class="component-sub">+ Positional Encoding</div>
+                        </div>
+                        <div class="component" style="background: #fff5f5; border: 2px solid #e53e3e;">
+                            <div class="component-name">Masked MHA</div>
+                            <div class="component-sub">防止看到未来</div>
+                        </div>
+                        <div class="component norm">
+                            <div class="component-name">+ Add &amp; Norm</div>
+                        </div>
+                        <div class="component mha">
+                            <div class="component-name">Cross Attention</div>
+                            <div class="component-sub">关注编码器输出</div>
+                        </div>
+                        <div class="component norm">
+                            <div class="component-name">+ Add &amp; Norm</div>
+                        </div>
+                        <div class="component ffn">
+                            <div class="component-name">Feed Forward</div>
+                        </div>
+                        <div class="component norm">
+                            <div class="component-name">+ Add &amp; Norm</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="arrow-down">⬇</div>
+                
+                <!-- 输出层 -->
+                <div class="layer">
+                    <span class="layer-label">输出</span>
+                    <div class="layer-content">
+                        <div class="component" style="background: #1a365d; border: 2px solid #1a365d;">
+                            <div class="component-name" style="color: #fff;">Linear</div>
+                            <div class="component-sub" style="color: #a0aec0;">投影到词表</div>
+                        </div>
+                        <div class="component" style="background: linear-gradient(135deg, #805ad5, #6b46c1); border: 2px solid #805ad5;">
+                            <div class="component-name" style="color: #fff;">Softmax</div>
+                            <div class="component-sub" style="color: #e9d8fd;">概率分布</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="formula-cards">
+                <div class="formula-card">
+                    <h4>📐 位置编码 (Positional Encoding)</h4>
+                    <div class="math">PE(pos,2i) = sin(pos/10000<sup>2i/d</sup>)</div>
+                    <div class="math">PE(pos,2i+1) = cos(pos/10000<sup>2i/d</sup>)</div>
+                    <p class="desc">使用正弦和余弦函数编码位置信息，支持任意长度的序列</p>
+                </div>
+                <div class="formula-card">
+                    <h4>🔧 Layer Normalization</h4>
+                    <div class="math">LN(x) = γ ⊙ (x-μ)/√(σ²+ε) + β</div>
+                    <p class="desc">对每一层的输出进行归一化，稳定训练过程</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 梯度下降 -->
+        <section id="gradient" class="visualization-section">
+            <h2 class="section-title">📉 梯度下降优化</h2>
+            
+            <div class="section-intro">
+                <strong>核心思想：</strong>梯度下降通过迭代优化，在损失函数的负梯度方向上更新参数，
+                逐步逼近全局或局部最优解。学习率和优化策略的选择对收敛速度和最终性能至关重要。
+            </div>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <span class="control-label">学习率: <span id="lrValue">0.1</span></span>
+                    <input type="range" id="learningRate" min="0.01" max="0.5" step="0.01" value="0.1" 
+                           onchange="updateLearningRate()">
+                </div>
+                <button class="btn" onclick="runGradientDescent()">▶ 开始优化</button>
+                <button class="btn btn-secondary" onclick="resetGradient()">↺ 重置</button>
+            </div>
+            
+            <div class="gradient-viz">
+                <canvas id="gradientCanvas"></canvas>
+            </div>
+            
+            <div class="formula-cards">
+                <div class="formula-card">
+                    <h4>🎯 参数更新规则</h4>
+                    <div class="math">θ = θ - α · ∇J(θ)</div>
+                    <p class="desc">α是学习率，∇J(θ)是损失函数的梯度</p>
+                </div>
+                <div class="formula-card">
+                    <h4>⚡ Adam优化器</h4>
+                    <div class="math">m<sub>t</sub> = β₁m<sub>t-1</sub> + (1-β₁)g<sub>t</sub></div>
+                    <div class="math">θ<sub>t+1</sub> = θ<sub>t</sub> - α·m̂<sub>t</sub>/(√v̂<sub>t</sub>+ε)</div>
+                    <p class="desc">自适应学习率优化器，结合动量和二阶矩估计</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 扩散模型 -->
+        <section id="diffusion" class="visualization-section">
+            <h2 class="section-title">🔄 扩散模型 (Diffusion Model)</h2>
+            
+            <div class="section-intro">
+                <strong>核心思想：</strong>扩散模型通过一个前向过程逐步向数据添加噪声，
+                然后学习逆向过程从噪声中恢复原始数据。扩散模型已成为图像生成的主流方法。
+            </div>
+            
+            <div class="diffusion-container">
+                <div class="diffusion-column">
+                    <h4>📤 前向扩散 (Forward)</h4>
+                    <p style="color: #718096; margin-bottom: 15px;">逐步添加噪声</p>
+                    <div class="diffusion-steps" id="forwardSteps">
+                        <!-- 由JavaScript生成 -->
+                    </div>
+                </div>
+                
+                <div style="display: flex; align-items: center; font-size: 2rem; color: #4299e1;">
+                    ⟺
+                </div>
+                
+                <div class="diffusion-column">
+                    <h4>📥 逆向去噪 (Reverse)</h4>
+                    <p style="color: #718096; margin-bottom: 15px;">逐步去除噪声</p>
+                    <div class="diffusion-steps" id="reverseSteps">
+                        <!-- 由JavaScript生成 -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="formula-cards">
+                <div class="formula-card">
+                    <h4>➕ 前向过程</h4>
+                    <div class="math">q(x<sub>t</sub>|x<sub>t-1</sub>) = 𝒩(√(1-β<sub>t</sub>)x<sub>t-1</sub>, β<sub>t</sub>I)</div>
+                    <p class="desc">逐步向数据添加高斯噪声，最终变为纯噪声</p>
+                </div>
+                <div class="formula-card">
+                    <h4>➖ 逆向过程</h4>
+                    <div class="math">p<sub>θ</sub>(x<sub>t-1</sub>|x<sub>t</sub>) = 𝒩(μ<sub>θ</sub>(x<sub>t</sub>,t), Σ<sub>θ</sub>(x<sub>t</sub>,t))</div>
+                    <p class="desc">学习从噪声恢复数据的过程</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- MoE架构 -->
+        <section id="moe" class="visualization-section">
+            <h2 class="section-title">🎭 MoE混合专家架构</h2>
+            
+            <div class="section-intro">
+                <strong>核心思想：</strong>混合专家模型通过门控网络动态选择激活的专家子集，
+                在保持大量参数的同时实现稀疏激活，大幅提升计算效率。
+            </div>
+            
+            <div class="moe-viz">
+                <canvas id="moeCanvas"></canvas>
+            </div>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <span class="control-label">Top-K: <span id="topkValue">2</span></span>
+                    <input type="range" id="topkSlider" min="1" max="4" step="1" value="2" 
+                           onchange="updateTopK()">
+                </div>
+                <button class="btn" onclick="toggleMoEAnimation()">▶ 播放动画</button>
+            </div>
+            
+            <div class="formula-cards">
+                <div class="formula-card">
+                    <h4>🚪 门控网络</h4>
+                    <div class="math">G(x) = softmax(W<sub>g</sub>x + b<sub>g</sub>)</div>
+                    <p class="desc">计算每个专家的激活权重</p>
+                </div>
+                <div class="formula-card">
+                    <h4>🔀 稀疏激活</h4>
+                    <div class="math">y = Σ<sub>i∈TopK(G(x))</sub> G(x)<sub>i</sub> · E<sub>i</sub>(x)</div>
+                    <p class="desc">只激活权重最高的K个专家</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- InfoNCE对比学习 -->
+        <section id="infonce" class="visualization-section">
+            <h2 class="section-title">🔗 对比学习 (Contrastive Learning)</h2>
+            
+            <div class="section-intro">
+                <strong>核心思想：</strong>对比学习通过拉近相似样本、推远不相似样本来学习有效的表示。
+                InfoNCE损失是CLIP等模型的核心，通过最大化正样本对之间的互信息下界实现。
+            </div>
+            
+            <div class="infonce-viz">
+                <div class="embedding-space">
+                    <canvas id="embeddingCanvas"></canvas>
+                </div>
+                
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: #4299e1;"></div>
+                        <span>文本表示</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: #e53e3e;"></div>
+                        <span>图像表示</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: #38a169;"></div>
+                        <span>正样本对</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: #718096;"></div>
+                        <span>负样本</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="formula-cards">
+                <div class="formula-card">
+                    <h4>📊 InfoNCE 损失</h4>
+                    <div class="math">L = -log(exp(sim(q,k⁺)/τ) / Σ<sub>j</sub>exp(sim(q,k<sub>j</sub>)/τ))</div>
+                    <p class="desc">τ是温度参数，控制分布的平滑程度</p>
+                </div>
+                <div class="formula-card">
+                    <h4>🎯 训练目标</h4>
+                    <div class="math">max Σ<sub>i</sub> log P(correct|text<sub>i</sub>) + log P(correct|image<sub>i</sub>)</div>
+                    <p class="desc">同时训练图像和文本编码器，最大化正确配对概率</p>
+                </div>
+            </div>
+        </section>
+        
+        <footer>
+            <p>AI数学知识库 - 可视化学习模块 | 
+            <a href="../index.html">返回知识库主页</a></p>
+        </footer>
+    </div>
+    
+    <script>
+        // 显示/隐藏章节
+        function showSection(sectionId) {
+            document.querySelectorAll('.visualization-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+            event.target.classList.add('active');
+            
+            // 初始化各模块
+            if (sectionId === 'attention') initAttention();
+            if (sectionId === 'gradient') initGradient();
+            if (sectionId === 'diffusion') initDiffusion();
+            if (sectionId === 'moe') initMoE();
+            if (sectionId === 'infonce') initInfoNCE();
+        }
+        
+        // ========== 注意力机制 ==========
+        function initAttention() {
+            const matrix = document.getElementById('attentionMatrix');
+            matrix.innerHTML = '';
+            
+            const attentionScores = [
+                [0.9, 0.1, 0.0, 0.0],
+                [0.2, 0.7, 0.1, 0.0],
+                [0.1, 0.2, 0.6, 0.1],
+                [0.0, 0.1, 0.2, 0.7]
+            ];
+            
+            const colors = ['#c6f6d5', '#9ae6b4', '#68d391', '#f6e05e', '#fbd38d'];
+            
+            // 表头
+            matrix.innerHTML = '<div></div>';
+            ['K₀', 'K₁', 'K₂', 'K₃'].forEach(k => {
+                matrix.innerHTML += `<div style="text-align:center;font-weight:bold;color:#1a365d;">${k}</div>`;
+            });
+            
+            // 矩阵内容
+            attentionScores.forEach((row, i) => {
+                matrix.innerHTML += `<div style="display:flex;align-items:center;font-weight:bold;color:#1a365d;">Q<sub>${i}</sub></div>`;
+                row.forEach((score, j) => {
+                    const colorIdx = Math.floor(score * 4);
+                    const cell = document.createElement('div');
+                    cell.className = 'matrix-cell';
+                    cell.style.background = colors[colorIdx];
+                    cell.style.color = score > 0.5 ? '#1a365d' : '#1a365d';
+                    cell.textContent = score.toFixed(1);
+                    cell.title = `Q${i} 对 K${j} 的注意力: ${score}`;
+                    matrix.appendChild(cell);
+                });
+            });
+        }
+        
+        // ========== 梯度下降 ==========
+        let gradientCtx, gradientAnimId;
+        let currentLR = 0.1;
+        let gradientHistory = [];
+        
+        function initGradient() {
+            const canvas = document.getElementById('gradientCanvas');
+            canvas.width = canvas.parentElement.offsetWidth;
+            canvas.height = 400;
+            gradientCtx = canvas.getContext('2d');
+            resetGradient();
+        }
+        
+        function drawGradientLandscape() {
+            const ctx = gradientCtx;
+            const w = ctx.canvas.width;
+            const h = ctx.canvas.height;
+            
+            // 清空画布
+            ctx.fillStyle = '#f8fafc';
+            ctx.fillRect(0, 0, w, h);
+            
+            // 绘制等高线
+            for (let x = 0; x < w; x++) {
+                for (let y = 0; y < h; y++) {
+                    const nx = (x / w) * 10 - 5;
+                    const ny = (y / h) * 10 - 5;
+                    const z = Math.sin(nx * 0.5) * Math.cos(ny * 0.5) * 0.5 + (nx * nx + ny * ny) * 0.03;
+                    const color = z > 0.3 ? '#fed7d7' : z > 0.1 ? '#fefcbf' : z > -0.1 ? '#c6f6d5' : '#9ae6b4';
+                    ctx.fillStyle = color;
+                    ctx.fillRect(x, y, 1, 1);
+                }
+            }
+            
+            // 绘制路径
+            if (gradientHistory.length > 1) {
+                ctx.beginPath();
+                ctx.strokeStyle = '#e53e3e';
+                ctx.lineWidth = 3;
+                ctx.moveTo(gradientHistory[0].x, gradientHistory[0].y);
+                for (let i = 1; i < gradientHistory.length; i++) {
+                    ctx.lineTo(gradientHistory[i].x, gradientHistory[i].y);
+                }
+                ctx.stroke();
+                
+                // 绘制点
+                gradientHistory.forEach((p, i) => {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, i === gradientHistory.length - 1 ? 8 : 4, 0, Math.PI * 2);
+                    ctx.fillStyle = i === gradientHistory.length - 1 ? '#38a169' : '#e53e3e';
+                    ctx.fill();
+                    ctx.strokeStyle = '#fff';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                });
+            }
+            
+            // 标注起点和终点
+            ctx.fillStyle = '#1a365d';
+            ctx.font = 'bold 14px Arial';
+            ctx.fillText('起点', 50, h - 30);
+            ctx.fillText('最优点', w - 80, 30);
+        }
+        
+        function runGradientDescent() {
+            cancelAnimationFrame(gradientAnimId);
+            gradientHistory = [];
+            
+            const canvas = document.getElementById('gradientCanvas');
+            const w = canvas.width;
+            const h = canvas.height;
+            
+            let x = -4 + Math.random() * 2;
+            let y = -4 + Math.random() * 2;
+            
+            function loss(nx, ny) {
+                return Math.sin(nx * 0.5) * Math.cos(ny * 0.5) * 0.5 + (nx * nx + ny * ny) * 0.03;
+            }
+            
+            function grad(nx, ny) {
+                const dx = Math.cos(nx * 0.5) * 0.5 * 0.5 + nx * 0.06;
+                const dy = -Math.sin(ny * 0.5) * 0.5 * 0.5 + ny * 0.06;
+                return { dx, dy };
+            }
+            
+            function step() {
+                const nx = (x / w) * 10 - 5;
+                const ny = (y / h) * 10 - 5;
+                const g = grad(nx, ny);
+                
+                // 缩放梯度
+                const scale = w / 10;
+                x = Math.max(10, Math.min(w - 10, x - currentLR * g.dx * scale));
+                y = Math.max(10, Math.min(h - 10, y - currentLR * g.dy * scale));
+                
+                gradientHistory.push({ x, y });
+                
+                drawGradientLandscape();
+                
+                if (gradientHistory.length < 100 && Math.abs(g.dx) + Math.abs(g.dy) > 0.01) {
+                    gradientAnimId = requestAnimationFrame(step);
+                }
+            }
+            
+            step();
+        }
+        
+        function resetGradient() {
+            cancelAnimationFrame(gradientAnimId);
+            gradientHistory = [];
+            if (gradientCtx) drawGradientLandscape();
+        }
+        
+        function updateLearningRate() {
+            currentLR = parseFloat(document.getElementById('learningRate').value);
+            document.getElementById('lrValue').textContent = currentLR.toFixed(2);
+        }
+        
+        // ========== 扩散模型 ==========
+        function initDiffusion() {
+            const forwardContainer = document.getElementById('forwardSteps');
+            const reverseContainer = document.getElementById('reverseSteps');
+            
+            forwardContainer.innerHTML = '';
+            reverseContainer.innerHTML = '';
+            
+            const n = 5;
+            for (let i = 0; i < n; i++) {
+                const noise = i / (n - 1);
+                const gray = Math.floor(245 - noise * 200);
+                
+                const forwardStep = document.createElement('div');
+                forwardStep.className = 'diffusion-step';
+                forwardStep.style.background = `rgb(${gray}, ${gray}, ${gray})`;
+                forwardStep.innerHTML = `<span class="step-num">t=${i * 100}</span><span class="step-label">噪声: ${(noise * 100).toFixed(0)}%</span>`;
+                forwardContainer.appendChild(forwardStep);
+                
+                const reverseStep = document.createElement('div');
+                reverseStep.className = 'diffusion-step';
+                reverseStep.style.background = `rgb(${gray}, ${gray}, ${gray})`;
+                reverseStep.innerHTML = `<span class="step-num">t=${(n - 1 - i) * 100}</span><span class="step-label">清晰: ${((1 - noise) * 100).toFixed(0)}%</span>`;
+                reverseContainer.appendChild(reverseStep);
+            }
+        }
+        
+        // ========== MoE ==========
+        let moeCtx, moeAnimId, moeTopK = 2, moeAnimating = false;
+        
+        function initMoE() {
+            const canvas = document.getElementById('moeCanvas');
+            canvas.width = canvas.parentElement.offsetWidth;
+            canvas.height = 400;
+            moeCtx = canvas.getContext('2d');
+            drawMoE();
+        }
+        
+        function drawMoE() {
+            const ctx = moeCtx;
+            const w = ctx.canvas.width;
+            const h = ctx.canvas.height;
+            
+            ctx.fillStyle = '#f8fafc';
+            ctx.fillRect(0, 0, w, h);
+            
+            // 输入
+            ctx.fillStyle = '#4299e1';
+            roundRect(ctx, 30, h/2 - 30, 100, 60, 10);
+            ctx.fill();
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('输入x', 80, h/2 + 5);
+            
+            // 门控
+            ctx.fillStyle = '#ed8936';
+            roundRect(ctx, 180, h/2 - 40, 120, 80, 10);
+            ctx.fill();
+            ctx.fillStyle = '#fff';
+            ctx.fillText('门控网络', 240, h/2 + 5);
+            ctx.fillText('G(x)', 240, h/2 + 25);
+            
+            // 专家
+            const experts = [
+                { x: 380, y: 60, active: true },
+                { x: 480, y: 60, active: false },
+                { x: 580, y: 60, active: true },
+                { x: 380, y: 180, active: false },
+                { x: 480, y: 180, active: true },
+                { x: 580, y: 180, active: false }
+            ];
+            
+            experts.forEach((exp, i) => {
+                ctx.fillStyle = exp.active ? '#38a169' : '#a0aec0';
+                roundRect(ctx, exp.x, exp.y, 80, 60, 10);
+                ctx.fill();
+                ctx.fillStyle = '#fff';
+                ctx.fillText(`E${i + 1}`, exp.x + 40, exp.y + 25);
+                ctx.font = '12px Arial';
+                ctx.fillText(exp.active ? '激活' : '未激活', exp.x + 40, exp.y + 45);
+                ctx.font = 'bold 14px Arial';
+                
+                // 连接线
+                ctx.strokeStyle = exp.active ? '#38a169' : '#a0aec0';
+                ctx.lineWidth = exp.active ? 3 : 1;
+                ctx.setLineDash(exp.active ? [] : [5, 5]);
+                ctx.beginPath();
+                ctx.moveTo(300, h/2);
+                ctx.lineTo(exp.x + 40, exp.y + 30);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            });
+            
+            // 输出
+            ctx.fillStyle = '#805ad5';
+            roundRect(ctx, 30, h - 100, 100, 60, 10);
+            ctx.fill();
+            ctx.fillStyle = '#fff';
+            ctx.fillText('输出y', 80, h - 65);
+            
+            // 输出连接
+            ctx.strokeStyle = '#805ad5';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(300, h/2);
+            ctx.lineTo(80, h - 70);
+            ctx.stroke();
+            
+            // 说明
+            ctx.fillStyle = '#1a365d';
+            ctx.font = 'bold 16px Arial';
+            ctx.fillText('Top-' + moeTopK + ' 稀疏激活', w/2, 30);
+            ctx.font = '14px Arial';
+            ctx.fillStyle = '#718096';
+            ctx.fillText('只激活权重最高的K个专家', w/2, 55);
+        }
+        
+        function roundRect(ctx, x, y, w, h, r) {
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + w - r, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+            ctx.lineTo(x + w, y + h - r);
+            ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            ctx.lineTo(x + r, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.closePath();
+        }
+        
+        function updateTopK() {
+            moeTopK = parseInt(document.getElementById('topkSlider').value);
+            document.getElementById('topkValue').textContent = moeTopK;
+            drawMoE();
+        }
+        
+        function toggleMoEAnimation() {
+            moeAnimating = !moeAnimating;
+            if (moeAnimating) {
+                let frame = 0;
+                function anim() {
+                    frame++;
+                    if (frame % 60 < 30) {
+                        moeTopK = Math.floor(Math.random() * 3) + 1;
+                        document.getElementById('topkSlider').value = moeTopK;
+                        document.getElementById('topkValue').textContent = moeTopK;
+                    }
+                    drawMoE();
+                    if (moeAnimating) moeAnimId = requestAnimationFrame(anim);
+                }
+                anim();
+            } else {
+                cancelAnimationFrame(moeAnimId);
+                drawMoE();
+            }
+        }
+        
+        // ========== InfoNCE ==========
+        let embedCtx;
+        
+        function initInfoNCE() {
+            const canvas = document.getElementById('embeddingCanvas');
+            canvas.width = canvas.parentElement.offsetWidth;
+            canvas.height = 350;
+            embedCtx = canvas.getContext('2d');
+            drawEmbeddings();
+        }
+        
+        function drawEmbeddings() {
+            const ctx = embedCtx;
+            const w = ctx.canvas.width;
+            const h = ctx.canvas.height;
+            const cx = w / 2;
+            const cy = h / 2;
+            const r = Math.min(w, h) * 0.35;
+            
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(0, 0, w, h);
+            
+            // 绘制嵌入空间圆
+            ctx.strokeStyle = '#e2e8f0';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.arc(cx, cy, r * 0.66, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.arc(cx, cy, r * 0.33, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            // 绘制数据点
+            const points = [
+                { x: cx - 50, y: cy - 30, type: 'text', label: 'T1' },
+                { x: cx - 80, y: cy + 20, type: 'text', label: 'T2' },
+                { x: cx + 60, y: cy - 20, type: 'text', label: 'T3' },
+                { x: cx + 40, y: cy + 50, type: 'text', label: 'T4' },
+                { x: cx - 60, y: cy - 40, type: 'image', label: 'I1' },
+                { x: cx - 30, y: cy + 60, type: 'image', label: 'I2' },
+                { x: cx + 70, y: cy - 10, type: 'image', label: 'I3' },
+                { x: cx + 50, y: cy + 40, type: 'image', label: 'I4' },
+            ];
+            
+            // 绘制配对线
+            ctx.strokeStyle = '#38a169';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(points[0].x, points[0].y);
+            ctx.lineTo(points[4].x, points[4].y);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(points[2].x, points[2].y);
+            ctx.lineTo(points[6].x, points[6].y);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // 绘制负样本连线
+            ctx.strokeStyle = '#e53e3e';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([3, 3]);
+            for (let i = 0; i < points.length; i++) {
+                for (let j = i + 1; j < points.length; j++) {
+                    if ((points[i].type !== points[j].type)) {
+                        const isPositive = (i === 0 && j === 4) || (i === 2 && j === 6);
+                        if (!isPositive) {
+                            ctx.beginPath();
+                            ctx.moveTo(points[i].x, points[i].y);
+                            ctx.lineTo(points[j].x, points[j].y);
+                            ctx.stroke();
+                        }
+                    }
+                }
+            }
+            ctx.setLineDash([]);
+            
+            // 绘制点
+            points.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 18, 0, Math.PI * 2);
+                ctx.fillStyle = p.type === 'text' ? '#4299e1' : '#e53e3e';
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 11px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(p.label, p.x, p.y + 4);
+            });
+            
+            // 标注
+            ctx.fillStyle = '#1a365d';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('文本嵌入空间', cx - 80, 25);
+            ctx.fillText('图像嵌入空间', cx + 80, 25);
+        }
+        
+        // 初始化
+        window.onload = function() {
+            initAttention();
+        };
+    </script>
+</body>
+</html>
