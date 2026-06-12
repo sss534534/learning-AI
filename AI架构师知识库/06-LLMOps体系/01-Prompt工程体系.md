@@ -2,6 +2,14 @@
 
 > 生产级Prompt管理与优化
 
+## 元数据
+- **难度**: ⭐⭐
+- **前置知识**: LLM基础, Prompt设计基础
+- **关联文件**: [03-成本优化与A-B测试](./03-成本优化与A-B测试.md), [04-LLM评估工具深度实战](./04-LLM评估工具深度实战.md)
+- **最后更新**: 2026-06-12
+
+---
+
 ## 1. Prompt工程基础
 
 ### 1.1 什么是Prompt工程？
@@ -475,6 +483,41 @@ optimized = dspy.teleprompt.bootstrap_few_shot(
 - 问题：新Prompt效果不如预期
 - 解决：小流量验证再全量
 
+## 深度分析
+
+### Prompt工程的核心矛盾：表达能力与可控性
+
+Prompt工程本质上是人类意图与模型能力之间的翻译层。表达能力越强的Prompt（如长链思维、多步骤推理），往往越难以控制和调试。架构师需要在灵活性与确定性之间找到平衡——对于高风险的业务场景，结构化输出+严格格式约束是必要的；对于创意性任务，则应给模型更多自由度。
+
+### 生产环境的Prompt生命周期管理
+
+多数团队低估了Prompt进入生产后的维护成本。Prompt不是"写一次就完事"的——模型版本升级、业务需求变化、用户行为偏移都会导致Prompt效果退化。建立Prompt Registry（注册中心）、版本化管理、定期A/B测试是生产级Prompt体系的基石。结合DSPy等自动化优化工具，可以将Prompt迭代从手工操作升级为数据驱动的工程流程。
+
+### 从Prompt工程到Agent工程的演进
+
+2025-2026年，行业趋势正从单轮Prompt设计向多步Agent编排演进。Prompt不再是孤立的指令模板，而是Agent决策链路中的一个节点。架构师需要将Prompt作为"可组合的微服务"来设计——每个Prompt有明确的输入输出接口、版本号和预期行为，通过Registry进行组合和调度。
+
+## Checklist
+
+- [ ] 建立Prompt版本控制（Git + Registry）
+- [ ] 设计分层Prompt体系（基础层/任务层/业务层）
+- [ ] 实现Prompt模板引擎（Jinja2等），支持动态变量
+- [ ] 配置输入验证和Prompt注入防护
+- [ ] 建立离线评估基准（含自动+人工指标）
+- [ ] 实施A/B测试流程，数据驱动迭代
+- [ ] 监控在线指标（Token消耗、延迟、用户满意度）
+- [ ] 定义Prompt降级和Fallback策略
+- [ ] 建立团队Prompt评审和变更审批流程
+- [ ] 定期审计Prompt安全性与合规性
+
+## 延伸阅读
+
+- [03-成本优化与A-B测试](./03-成本优化与A-B测试.md) — Prompt级A/B测试的成本视角
+- [04-LLM评估工具深度实战](./04-LLM评估工具深度实战.md) — Prompt效果评估方法论
+- DSPy官方文档: https://dspy-docs.vercel.app
+- "Prompt Engineering Guide" — DAIR.AI 的Prompt工程指南
+- OpenAI Prompt Engineering Guide: https://platform.openai.com/docs/guides/prompt-engineering
+
 ---
 
-*最后更新：2026-05-07*
+*最后更新：2026-06-12*

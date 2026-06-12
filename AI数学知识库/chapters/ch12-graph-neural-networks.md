@@ -10,6 +10,12 @@
 4. [知识图谱推理](#4-知识图谱推理)
 5. [图神经网络在大模型中的应用](#5-图神经网络在大模型中的应用)
 
+## 元数据
+- **难度**: ⭐⭐⭐
+- **前置知识**: [ch01-linear-algebra.md], [ch02-matrix-decomposition.md]
+- **关联文件**: [ch10-llm-training.md], [ch16-multimodal-alignment.md]
+- **最后更新**: 2026-06-12
+
 ---
 
 ## 1. 图论基础
@@ -1325,3 +1331,44 @@ class MultiHopReasoner(nn.Module):
 | RotatE | $f_r(h,t) = -\|\mathbf{h} \odot \mathbf{r} - \mathbf{t}\|$ |
 | 图傅里叶变换 | $\hat{\mathbf{x}} = \mathbf{U}^\top\mathbf{x}$ |
 | 双曲距离 | $d_\mathbb{B}(\mathbf{x},\mathbf{y}) = \text{arccosh}(1 + 2\frac{\|\mathbf{x}-\mathbf{y}\|^2}{(1-\|\mathbf{x}\|^2)(1-\|\mathbf{y}\|^2)})$ |
+
+---
+
+## 深度分析
+
+### 图数据的归纳偏置
+
+GNN的核心设计哲学是"图的对称性决定架构"。与CNN利用平移不变性、Transformer利用排列不变性类似，GNN显式编码了图结构的置换等变性。这一归纳偏置使得GNN在分子性质预测、社交网络分析等图结构数据上天然优于通用架构。
+
+### 消息传递的扩展
+
+消息传递范式是GNN的基础，但存在表达力上限。2024-2026年的前沿工作通过引入全局注意力或高阶邻域聚合突破了这一上限。GraphRAG的兴起更是将GNN与检索增强生成结合——知识图谱的结构信息通过GNN编码后注入检索过程。
+
+---
+
+## GNN实践Checklist
+
+- [ ] 理解消息传递范式（message/aggregate/update）
+- [ ] 掌握GCN、GAT、GraphSAGE的核心差异
+- [ ] 理解过平滑（over-smoothing）问题的数学原因
+- [ ] 能够实现图级别的readout操作
+- [ ] 理解Graph Transformer与vanilla Transformer的区别
+- [ ] 掌握图数据增强策略（dropout/edge masking）
+- [ ] 了解GNN与知识图谱结合的典型模式
+- [ ] 能够诊断GNN的过拟合和欠拟合
+- [ ] 理解WL test与GNN表达力的关系
+- [ ] 了解GNN在大规模图上的可扩展训练方法
+
+---
+
+## 延伸阅读
+
+- [线性代数](ch01-linear-algebra.md)
+- [神经网络](ch06-neural-networks.md)
+- [深度学习技巧](ch07-deep-learning-techniques.md)
+- [注意力机制](ch08-attention-mechanism.md)
+- [Transformer架构](ch09-transformer.md)
+
+---
+
+*最后更新：2026-06-12*

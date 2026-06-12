@@ -2,6 +2,13 @@
 
 > 基于Model Context Protocol的企业级AI工具服务集群
 
+## 元数据
+- **难度**: ⭐⭐⭐
+- **前置知识**: [MCP协议基础](../03-协议与标准/MCP协议.md), [微服务架构设计](../08-架构模式/01-AI系统架构模式.md)
+- **关联文件**: [自托管与本地优先Agent生态](../10-AI工程化前沿/02-自托管与本地优先Agent生态.md), [AI韧性工程与容错设计](../08-架构模式/03-AI韧性工程与容错设计.md)
+- **最后更新**: 2026-06-12
+---
+
 ## 1. 项目背景
 
 ### 1.1 业务需求
@@ -2567,4 +2574,31 @@ V3.0（远期）: 生态化平台
 
 ---
 
-*最后更新：2026-05-12*
+## 深度分析
+
+MCP工具服务架构代表了LLM应用与外部系统集成的最新范式。相比传统的Function Calling方式，MCP通过标准化的JSON-RPC 2.0协议和Streamable HTTP传输，实现了工具服务的"热插拔"——每个MCP Server可独立部署、升级和扩缩容，而LLM应用通过MCP Client动态发现和调用工具。Gateway层将认证鉴权、权限校验、路由分发、限流熔断和审计日志统一收敛，形成了工具调用的统一管控面。
+
+从代码实现看，FastMCP框架大大简化了MCP Server的开发工作。文件系统、数据库、API网关三个Server的示例代码完整展示了工具定义、资源暴露和健康检查的标准模式。安全设计尤为关键：文件系统Server通过路径白名单和敏感扩展名过滤实现访问控制；数据库Server默认只读，写操作需显式开启；API网关Server通过域名白名单和路径黑名单双重防护。这些做法为MCP Server的安全基线提供了参考。
+
+Consul服务注册与发现、K8s容器编排、以及Gateway层的熔断器与限流机制共同构成了MCP服务集群的生产级保障。轮询/随机/最小连接数负载均衡策略、滑动窗口限流和半开状态恢复的熔断器，使这套架构能应对日均200万次工具调用的生产压力。审计日志的精细化设计（trace_id全程传播、参数哈希脱敏）也为合规审计提供了强有力的支撑。
+
+## Checklist
+
+- [ ] 确认所有MCP Server实现了标准健康检查和Consul服务注册
+- [ ] 验证Gateway层的认证鉴权和权限校验逻辑是否完整
+- [ ] 测试熔断器在不同故障场景下的行为（超时/限流/服务不可达）
+- [ ] 配置Streamable HTTP传输模式，确保支持负载均衡
+- [ ] 实现工具调用的全链路Trace ID传播和审计日志记录
+- [ ] 验证文件系统Server的路径越权防护和敏感扩展名过滤
+- [ ] 确认数据库Server的只读模式配置和SQL注入防护
+- [ ] 制定MCP Server的滚动升级和回滚策略
+- [ ] 压测Gateway的限流能力，确保RPM配置准确生效
+- [ ] 编写MCP工具服务目录文档，支持LLM应用动态发现
+
+## 延伸阅读
+
+- [Model Context Protocol 官方规范](https://spec.modelcontextprotocol.io/)
+- [MCP Python SDK 文档](https://github.com/modelcontextprotocol/python-sdk)
+- [Streamable HTTP 传输协议详解](https://spec.modelcontextprotocol.io/latest/transports/streamable-http/)
+
+*最后更新：2026-06-12*

@@ -10,6 +10,12 @@
 4. [MoE训练动力学](#4-moe训练动力学)
 5. [MoE缩放定律](#5-moe缩放定律)
 
+## 元数据
+- **难度**: ⭐⭐⭐
+- **前置知识**: [ch10-llm-training.md]
+- **关联文件**: [ch13-reasoning-models-math.md], [ch17-advanced-optimizers.md]
+- **最后更新**: 2026-06-12
+
 ---
 
 ## 1. MoE基础数学框架
@@ -1051,3 +1057,44 @@ MoE架构的核心数学原理：
 - 共享专家架构（Shared Expert Architecture）
 - 专家合并与蒸馏
 - 推理时的专家缓存优化
+
+---
+
+## 深度分析
+
+### MoE的条件计算哲学
+
+MoE的核心思想是条件计算——通过路由门控动态选择最相关的专家子集。这使得模型可以在总参数量巨大的情况下保持推理计算量基本不变。数学本质是：模型容量（参数总量）与计算成本（FLOPs）解耦——这是超越Scaling Laws的关键突破。
+
+### 负载均衡的数学挑战
+
+路由门控倾向于将所有输入分配给少数"强"专家，导致其余专家"饿死"。解决方法是引入辅助损失对专家使用频率施加正则化约束。2026年的趋势是用softmax temperature调整和expert choice routing替代传统的top-k routing，实现更细粒度的负载控制。
+
+---
+
+## MoE实践Checklist
+
+- [ ] 理解Top-K路由机制的数学实现
+- [ ] 掌握辅助负载均衡损失函数的设计
+- [ ] 了解专家容量（expert capacity）的意义和配置
+- [ ] 理解MoE的分布式通信模式（All-to-All）
+- [ ] 掌握稀疏MoE与密集模型的计算量对比
+- [ ] 了解MoE在推理时的显存管理策略
+- [ ] 理解fine-grained MoE与standard MoE的区别
+- [ ] 了解MoE模型微调的注意事项
+- [ ] 掌握MoE路由的负载均衡度量指标
+- [ ] 了解MoE与Mamba-Transformer混合架构的趋势
+
+---
+
+## 延伸阅读
+
+- [线性代数](ch01-linear-algebra.md)
+- [神经网络](ch06-neural-networks.md)
+- [深度学习技巧](ch07-deep-learning-techniques.md)
+- [Transformer](ch09-transformer.md)
+- [大模型训练](ch10-llm-training.md)
+
+---
+
+*最后更新：2026-06-12*

@@ -12,6 +12,13 @@
 
 ---
 
+## 元数据
+- **难度**: ⭐⭐⭐
+- **前置知识**: 无
+- **关联文件**: ../chapters/ch02-finetuning-alignment.md, ../appendices/appendix-a-glossary.md
+- **最后更新**: 2026-06-12
+---
+
 ## 1. 预训练概述
 
 ### 1.1 预训练的目标
@@ -588,6 +595,29 @@ output = flash_attn_func(
 
 ---
 
+## 深度分析
+
+预训练技术是构建大语言模型的基石，其核心挑战在于如何从海量、异构的互联网数据中提取高质量的语义知识。本章所涵盖的数据清洗（去重、过滤）、Tokenization（BPE、SentencePiece）以及数据混合策略，构成了现代预训练数据管线的标准范式。实践中，数据的质量往往比数量更为关键——例如，C4数据集对Common Crawl的严格过滤显著提升了模型的收敛速度与下游任务表现。此外，Tokenization的选择直接影响模型的词汇覆盖率和推理效率：BPE在平衡词表大小与表示粒度上表现优异，而SentencePiece则通过将文本视为字节序列消除了对预分词的依赖。
+
+分布式训练策略与显存优化技术是预训练工程化的核心支柱。从数据并行（DDP）到ZeRO优化（Stage 1-3）再到FSDP，显存效率的提升使得在有限硬件上训练大规模模型成为可能。梯度检查点、混合精度训练和Flash Attention等技术的组合使用，可以将单GPU所能容纳的模型规模扩大数倍。值得注意的是，这些优化技术并非孤立使用——例如，QLoRA（参见[微调与对齐](../chapters/ch02-finetuning-alignment.md)）正是4-bit量化与LoRA的融合，在预训练和微调场景下均展现出极佳的性价比。理解这些底层优化原理，对于后续掌握模型部署与推理优化（参见[评估与部署](../chapters/ch03-evaluation-deployment.md)）同样至关重要。
+
+---
+
+## Checklist
+
+- [ ] 理解预训练与微调的本质区别（数据规模、计算资源、训练目标）
+- [ ] 掌握数据清洗流程：去重、过滤、质量评估
+- [ ] 熟悉 BPE 和 SentencePiece 两种 Tokenization 方法的原理与实现
+- [ ] 了解数据混合策略中不同来源数据的配比原则
+- [ ] 理解自回归（Causal LM）与掩码（MLM）两种训练目标的数学表达
+- [ ] 掌握分布式训练三大范式：数据并行、ZeRO、FSDP
+- [ ] 熟悉至少三种显存优化技术：梯度检查点、混合精度、梯度累积
+- [ ] 能够配置 DeepSpeed ZeRO Stage 2 或 3 的 JSON 配置文件
+- [ ] 了解 Flash Attention 的原理及其对长序列训练的意义
+- [ ] 明确本章技术与后续微调、部署章节的关联
+
+---
+
 ## 本章小结
 
 预训练是大模型构建的基础阶段，关键要点：
@@ -599,3 +629,17 @@ output = flash_attn_func(
 5. **显存优化** 技术（检查点、混合精度、8-bit）大幅降低训练成本
 
 **下一章：** 我们将学习模型微调与对齐技术，包括SFT、LoRA、RLHF和DPO。
+
+---
+
+## 延伸阅读
+
+- [LoRA: Low-Rank Adaptation of Large Language Models](https://arxiv.org/abs/2106.09685) — 参数高效微调的开创性工作
+- [FlashAttention: Fast and Memory-Efficient Exact Attention](https://arxiv.org/abs/2205.14135) — 高效注意力机制的原始论文
+- [Scaling Laws for Neural Language Models](https://arxiv.org/abs/2001.08361) — 预训练规模法则，理解数据量与模型大小的关系
+- [DeepSpeed: System Optimizations Enable Training Very Large Models](https://arxiv.org/abs/2205.12816) — DeepSpeed 系统优化详解
+- [The Pile: An 800GB Dataset of Diverse Text for Language Modeling](https://arxiv.org/abs/2101.00027) — 预训练数据集的代表性工作
+
+---
+
+*最后更新: 2026-06-12*

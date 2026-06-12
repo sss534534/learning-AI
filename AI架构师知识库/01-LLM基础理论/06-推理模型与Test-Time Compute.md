@@ -2,6 +2,29 @@
 
 > 理解大模型从"快思考"到"慢思考"的范式跃迁
 
+## 元数据
+
+- **难度**: ⭐⭐⭐
+- **前置知识**: [Transformer架构详解](./01-Transformer架构详解.md), [大模型原理与选型](./03-大模型原理与选型.md), [T² Scaling Laws与推理时计算前沿](./08-T² Scaling Laws与推理时计算前沿.md)
+- **关联文件**: [Harness Engineering与推理模型部署](../06-工程实践/02-Harness Engineering与推理模型部署.md), [Agent架构演进](../04-Agent系统架构/01-Agent架构演进.md)
+- **最后更新**: 2026-06-12
+
+---
+
+## 目录
+
+1. [推理模型概述](#1-推理模型概述)
+2. [Test-Time Compute Scaling](#2-test-time-compute-scaling)
+3. [训练方法](#3-推理模型训练方法)
+4. [架构设计](#4-推理模型架构设计)
+5. [服务架构](#5-推理模型服务架构)
+6. [深度分析](#6-深度分析)
+7. [架构师关注点](#7-架构师关注点)
+8. [Checklist](#8-checklist)
+9. [延伸阅读](#9-延伸阅读)
+
+---
+
 ## 1. 推理模型概述
 
 ### 1.1 什么是推理模型
@@ -1012,9 +1035,86 @@ Checkpoint = {
 
 ---
 
-## 6. 架构师关注点
+## 6. 深度分析
 
-### 6.1 设计决策清单
+### 6.1 推理模型范式转变的本质
+
+推理模型代表 LLM 从**模式匹配范式**向**计算扩展范式**的根本转变：
+
+| 维度 | 模式匹配（标准LLM） | 计算扩展（推理模型） |
+|------|---------------------|---------------------|
+| 核心假设 | 知识在参数中 | 知识在计算中 |
+| 能力边界 | 训练数据覆盖 | 推理计算量 |
+| 失败模式 | 编造不可信内容 | 推理链中断/循环 |
+| 扩展方向 | 更大模型 + 更多数据 | 更多推理计算 + 更好搜索策略 |
+| 本质局限 | 无法解决未见过的问题 | 无法超越计算预算上限 |
+
+**关键推论**：推理模型的兴起意味着 LLM 的能力不再由"参数数量"单一决定，而是由"参数 × 推理计算"的联合效应决定。这是 T² Scaling Laws 的核心洞见。
+
+### 6.2 推理计算分配的最优策略
+
+给定总推理预算 $C_{total}$，最优分配策略取决于问题难度和答案空间的特性：
+
+**策略选择矩阵：**
+
+| 答案空间 | 问题可验证性 | 最优策略 | 典型场景 |
+|----------|-------------|----------|----------|
+| 小且离散 | 易验证 | Best-of-N 采样 | 数学选择题、分类 |
+| 大且连续 | 难验证 | 串行 CoT 深化 | 开放式写作、分析 |
+| 中等 | 部分可验证 | 混合策略 | 编程、代码审查 |
+| 层级结构 | 子问题可验证 | MCTS 树搜索 | 数学证明、规划 |
+
+**实用指南：**
+- **低预算 (<5x FLOPs)**：Best-of-N 采样，性价比最高
+- **中预算 (5-20x FLOPs)**：Chain-of-Thought + 自我反思
+- **高预算 (20-200x FLOPs)**：树搜索 + 过程奖励模型
+- **超高预算 (>200x FLOPs)**：多 Agent 协作验证
+
+### 6.3 推理模型 vs 非推理模型的场景边界
+
+| 场景类别 | 推理模型优势 | 标准LLM即可 | 决策依据 |
+|----------|-------------|-------------|----------|
+| 数学推理 | 显著（+30-60%） | 简单计算 | 问题是否需要多步形式化推导 |
+| 代码生成 | 中等（+15-30%） | 简单脚本 | 是否需要复杂算法设计 |
+| 逻辑分析 | 显著（+20-40%） | 直观判断 | 是否需要多条件推理 |
+| 事实问答 | 无优势甚至更差 | 最优 | 简单事实直接检索更高效 |
+| 创意写作 | 可能更差（过度思考） | 最优 | 创意需要流畅性而非严谨推理 |
+| 情感分析 | 无优势 | 最优 | 直觉判断优于分析推理 |
+
+### 6.4 2026 年关键发现：Reasoning Floor
+
+通用模型即使增加 10 倍推理计算，也无法追上推理优化权重的基线：
+
+- Llama-3.3-70B Instruct（通用）在 N=256 采样时仍低于 R1-Distill Llama-70B 的单次推理
+- 通过 RL 内化推理协议 > 外部搜索方法（如 MCTS、Beam Search）
+- 详见 [T² Scaling Laws与推理时计算前沿](./08-T²%20Scaling%20Laws与推理时计算前沿.md)
+
+**架构 > 参数量 > 推理计算**——决定推理质量的因素排序。
+
+### 6.5 2026 推理模型前沿趋势
+
+1. **T² Scaling Laws**：Train-to-Test 联合优化，推理时计算与训练时计算可互换
+2. **推理模型 Agent 化**：o4-mini 原生支持工具调用，推理与行动融合
+3. **结构化推理**：IBM ASTER/I3 Agent 证明结构化逻辑优于"裸 ReAct + Frontier Model"，架构成为决定性变量
+4. **推理成本下降**：蒸馏 + 小模型推理（QwQ-32B 等）使推理经济性提升 10x
+5. **推理与记忆解耦**：推理模型专攻推理，知识检索由 RAG 系统承担
+6. **Dynamic Workflows**：Claude Opus 4.8 引入 parallel subagent，多 Agent 协作推理
+
+### 6.6 关键权衡
+
+| 权衡 | 描述 | 决策建议 |
+|------|------|----------|
+| 计算预算 vs 质量 | 更多推理计算提升准确率但有上限 | 按问题难度动态分配预算 |
+| 延迟 vs 深度 | 长推理提高质量但降低用户体验 | 流式输出 + 推理进度提示 |
+| 成本 vs 覆盖 | 推理模型成本 5-20x，仅适用部分场景 | 路由层分流，80%请求用标准模型 |
+| 蒸馏 vs RL | 蒸馏效率高但无创造力，RL 泛化强但成本高 | 蒸馏 + RL 两阶段训练最佳 |
+| Thinking 可见性 | 可见透明但信息过载，隐藏简洁但黑盒 | 默认显示摘要，可选展开详细 |
+
+---
+
+## 7. 架构师关注点
+
+### 7.1 设计决策清单
 
 **选择推理模型时考虑：**
 
@@ -1024,7 +1124,7 @@ Checkpoint = {
 - [ ] 流式需求：长推理必须支持流式输出
 - [ ] 质量要求：推理模型在复杂任务上显著优于标准模型
 
-### 6.2 关键指标
+### 7.2 关键指标
 
 | 指标 | 说明 | 优化方向 |
 |------|------|----------|
@@ -1034,7 +1134,7 @@ Checkpoint = {
 | 成本/质量比 | 单位成本的性能收益 | 智能路由、缓存 |
 | KV Cache峰值 | thinking tokens的显存占用 | PagedAttention、量化 |
 
-### 6.3 常见陷阱
+### 7.3 常见陷阱
 
 1. **对所有请求使用推理模型**
    - 简单问题用推理模型是浪费（成本5-20倍，延迟10倍+）
@@ -1058,20 +1158,64 @@ Checkpoint = {
 
 ---
 
-## 7. 延伸阅读
+## 8. Checklist
 
-### 必读论文
-1. [Scaling LLM Test-Time Compute](https://arxiv.org/abs/2408.03314) - Test-Time Compute扩展定律
-2. [DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning](https://arxiv.org/abs/2501.12948) - R1-Zero与R1训练方法
-3. [Let's Verify Step by Step](https://arxiv.org/abs/2305.20050) - 过程奖励模型(PRM)
-4. [Tree of Thoughts](https://arxiv.org/abs/2305.10601) - 树搜索推理框架
-5. [Scaling Relationship Between Learning and Reasoning](https://arxiv.org/abs/2502.12236) - 推理与学习的缩放关系
+### 8.1 需求评估
+- [ ] 确认是否真正需要推理模型（先尝试标准模型基线）
+- [ ] 识别推理场景类型（数学/代码/逻辑/多跳QA/规划）
+- [ ] 评估延迟容忍度（实时：<5s / 交互：<30s / 批量：<120s）
+- [ ] 设定质量目标（准确率/通过率/用户满意度指标）
+- [ ] 估算推理成本预算（预期调用量 × 5-20x 标准模型成本）
 
-### 实践资源
-- [DeepSeek R1 开源仓库](https://github.com/deepseek-ai/DeepSeek-R1) - R1模型与蒸馏模型
-- [OpenAI Reasoning Guide](https://platform.openai.com/docs/guides/reasoning) - o系列推理模型使用指南
-- [QwQ 模型](https://huggingface.co/Qwen/QwQ-32B) - 开源推理模型
+### 8.2 模型选型
+- [ ] 对比推理模型（o4-mini / o3 / DeepSeek R1 / Gemini Thinking / QwQ-32B）
+- [ ] 评估模型在目标任务上的 benchmark 表现
+- [ ] 测试流式输出完整性和稳定性
+- [ ] 检查模型是否支持工具调用（Agent 场景必需品）
+- [ ] 验证开源模型可自托管（数据安全场景）
+
+### 8.3 预算管理
+- [ ] 配置推理预算分级（low/medium/high 三级）
+- [ ] 设置 max_thinking_tokens 硬上限
+- [ ] 实现推理预算路由（按问题复杂度分配预算）
+- [ ] 配置成本监控和熔断告警
+- [ ] 建立分层服务策略（80%标准 + 15%中预算 + 5%高预算）
+
+### 8.4 服务部署
+- [ ] 实现流式输出（SSE thinking + output 双流）
+- [ ] 配置推理超时和优雅中断
+- [ ] 评估 KV Cache 显存需求（标准模型的 10-50x）
+- [ ] 实现推理结果缓存（同义问题去重）
+- [ ] 配置渐进式推理机制（低预算→不满意→升级）
+
+### 8.5 持续优化
+- [ ] 追踪 Thinking Token 效率（每千 token 的质量提升）
+- [ ] 监控推理成本趋势（按用户/场景/模型维度）
+- [ ] 定期评估蒸馏模型是否满足需求
+- [ ] A/B 测试不同推理预算配置
+- [ ] 更新模型版本，跟踪最新推理模型发布
 
 ---
 
-*最后更新：2026-05-12*
+## 9. 延伸阅读
+
+### 必读论文
+1. [Scaling LLM Test-Time Compute](https://arxiv.org/abs/2408.03314) — Test-Time Compute扩展定律
+2. [DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning](https://arxiv.org/abs/2501.12948) — R1-Zero与R1训练方法
+3. [Let's Verify Step by Step](https://arxiv.org/abs/2305.20050) — 过程奖励模型(PRM)
+4. [Tree of Thoughts](https://arxiv.org/abs/2305.10601) — 树搜索推理框架
+5. [Scaling Relationship Between Learning and Reasoning](https://arxiv.org/abs/2502.12236) — 推理与学习的缩放关系
+
+### 关键论文扩展
+- [T² Scaling Laws与推理时计算前沿](./08-T²%20Scaling%20Laws与推理时计算前沿.md) — 联合优化范式的深度分析
+- [Harness Engineering与推理模型部署](../06-工程实践/02-Harness%20Engineering与推理模型部署.md) — 生产部署最佳实践
+- [Agent架构演进](../04-Agent系统架构/01-Agent架构演进.md) — 推理模型在 Agent 系统中的角色
+
+### 实践资源
+- [DeepSeek R1 开源仓库](https://github.com/deepseek-ai/DeepSeek-R1) — R1模型与蒸馏模型
+- [OpenAI Reasoning Guide](https://platform.openai.com/docs/guides/reasoning) — o系列推理模型使用指南
+- [QwQ 模型](https://huggingface.co/Qwen/QwQ-32B) — 开源推理模型
+
+---
+
+*最后更新：2026-06-12*

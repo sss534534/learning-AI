@@ -11,6 +11,13 @@
 
 ---
 
+## 元数据
+- **难度**: ⭐⭐
+- **前置知识**: ../chapters/ch05-tool-calling.md, ../chapters/ch06-memory-system.md, ../chapters/ch07-multi-agent.md
+- **关联文件**: ../chapters/ch05-tool-calling.md, ../chapters/ch07-multi-agent.md
+- **最后更新**: 2026-06-12
+---
+
 ## 1. LangChain Agents
 
 ### 1.1 LangChain概述
@@ -876,6 +883,41 @@ print(result)
 
 ---
 
+## 深度分析
+
+三大主流Agent框架——LangChain、AutoGen和Semantic Kernel——代表了Agent开发的三种不同哲学。LangChain采用"工具链+Agent执行器"的架构，通过丰富的组件生态和链式调用简化了Agent的构建过程，其ReAct和Plan-and-Execute模式直观地体现了"思考-行动-观察"的循环。LangChain的优势在于生态成熟度和社区活跃度，但也存在抽象层过厚、调试困难的问题，在简单场景下可能显得过度工程化。AutoGen则聚焦于多Agent对话协作，通过GroupChat和ConversableAgent等抽象，将Agent间的交互建模为结构化对话，适合需要多个角色协同完成的复杂任务。
+
+Semantic Kernel走的是轻量级路线，以Plugin和Kernel为核心，强调与现有企业系统的无缝集成。其Planner（规划器）能够根据用户需求自动编排插件调用序列，体现了"意图驱动"的Agent设计理念。SK的独特优势在于对多语言（C#/Python/Java）的支持，使其在企业级应用中具有天然的优势。从框架选型角度看，选择哪个框架不应仅看功能完备性，更应考虑与现有技术栈的匹配度、团队的学习成本以及社区的长期维护能力。
+
+实战案例展示了三个框架在不同场景下的应用模式。值得注意的是，框架本身只是工具，Agent系统的质量更多取决于工具定义的质量、提示词的设计以及错误处理机制的完善程度。跨框架整合代表了未来的趋势——大型项目往往需要同时利用不同框架的优势：用LangChain处理文档和检索，用AutoGen管理多Agent协作，用Semantic Kernel做企业级服务的编排。理解每个框架的设计哲学和适用边界，比单纯掌握某个框架的API更为重要。
+
+---
+
+## Checklist
+
+- [ ] 熟悉LangChain Agent的创建流程：工具定义→LLM初始化→提示模板→Agent创建→执行器
+- [ ] 理解ReAct Agent的"思考-行动-观察"循环原理
+- [ ] 掌握Plan-and-Execute Agent的规划与执行分离架构
+- [ ] 熟悉AutoGen的核心概念：AssistantAgent/UserProxyAgent/GroupChat
+- [ ] 实现AutoGen多Agent群聊系统，包括角色定义和对话管理
+- [ ] 掌握AutoGen中的工具注册与使用（register_for_llm/register_for_execution）
+- [ ] 熟悉Semantic Kernel的Kernel/Plugin/Function三层架构
+- [ ] 掌握Semantic Kernel的自定义插件开发和链式调用
+- [ ] 实现至少一个完整的Agent实战项目（文档助手/代码审查/客服系统）
+- [ ] 理解跨框架整合的设计思路，比较各框架的适用场景
+
+---
+
+## 延伸阅读
+
+- [第五章：工具调用与Function Calling](../chapters/ch05-tool-calling.md) - Agent框架中的工具调用基础
+- [第六章：Agent记忆系统](../chapters/ch06-memory-system.md) - Agent框架中的记忆集成
+- [第七章：多Agent协作系统](../chapters/ch07-multi-agent.md) - 多Agent框架设计原理
+- LangChain官方文档 - https://python.langchain.com/docs/
+- Semantic Kernel官方文档 - https://learn.microsoft.com/en-us/semantic-kernel/
+
+---
+
 ## 本章小结
 
 主流Agent框架各有优势：
@@ -890,3 +932,7 @@ print(result)
 - 企业级应用：Semantic Kernel
 
 **下一章：** 我们将学习Agent评估与优化方法。
+
+---
+
+*最后更新: 2026-06-12*

@@ -3,6 +3,12 @@
 > **定位**: LLMOps体系 · 工程融合深度  
 > **更新**: 2026-05-29 · 对标传统ML到LLM的全栈运营  
 
+## 元数据
+- **难度**: ⭐⭐⭐
+- **前置知识**: MLOps基础, LLM基础
+- **关联文件**: [02-可观测性与治理](./02-可观测性与治理.md), [05-LLM SRE与生产运维](./05-LLM%20SRE与生产运维.md)
+- **最后更新**: 2026-06-12
+
 ---
 
 ## 1. MLOps 到 LLMOps — 不是替代，是进化
@@ -772,6 +778,41 @@ class LLMABTestPlatform:
 └──────────────────────────────────────────────────────────┘
 ```
 
+## 深度分析
+
+### 传统MLOps与LLMOps的融合不是叠加而是重构
+
+简单地将传统MLOps工具加上LLM功能（比如在MLflow里加Prompt版本管理）是不够的。真正的融合需要在架构层面重新思考：Feature Store如何扩展支持LLM上下文向量？Model Registry如何同时管理模型权重和Prompt配置？实验跟踪如何记录Prompt变体、温度参数和RAG策略？核心原则是"统一元数据层 + 差异化执行引擎"——用同一个元数据平台管理ML模型和LLM应用，但针对LLM的特性（概率性输出、Token消耗、Prompt敏感等）设计独立的评估和监控机制。
+
+### 混合系统的架构模式
+
+2025-2026年最成功的AI应用架构是"传统ML + LLM"的混合模式。典型模式包括：(1) 传统ML做粗筛（毫秒级召回/分类），LLM做精加工（秒级生成/推理）；(2) 传统ML做高频预测（如推荐排序），LLM做低频的个性化解释和交互；(3) 传统ML做风控规则执行，LLM做复杂案例的深度分析和决策。关键原则是"让传统ML做它擅长的事（速度、确定性、可解释），让LLM做它擅长的事（语言理解、生成、推理）"。
+
+### 迁移路线图的关键抉择
+
+从传统MLOps迁移到融合LLMOps需要做三个关键抉择：(1) 工具链——是扩展现有MLflow/Kubeflow还是引入新工具（Langfuse/Phoenix）？建议采取混合策略：保留MLflow做模型管理，增加Langfuse做LLM评估和追踪；(2) 团队——是现有ML团队学习LLM还是组建独立LLM团队？建议在现有ML团队中设立"LLM大使"角色，避免知识孤岛；(3) 治理——是否统一ML和LLM的审批流程？建议统一模型上线审批，但LLM额外增加Prompt审查和安全评估环节。
+
+## Checklist
+
+- [ ] 盘点现有MLOps基础设施（Feature Store / Model Registry / Pipeline）
+- [ ] 扩展MLflow支持LLM元数据（Prompt版本、评估分数、Token消耗）
+- [ ] 实现Prompt Registry（类比Model Registry的版本+阶段管理）
+- [ ] 建立LLM多维评估体系（自动+人工+LLM-as-Judge）
+- [ ] 改造Feature Store支持RAG上下文管理
+- [ ] 部署混合A/B测试框架（同时支持ML模型和LLM Prompt实验）
+- [ ] 整合传统ML + LLM统一监控面板
+- [ ] 实现语义缓存层（降低LLM调用成本）
+- [ ] 制定MLOps→LLMOps迁移路线图和优先级
+- [ ] 培训团队LLM工程实践（Prompt设计/评估/安全）
+
+## 延伸阅读
+
+- [02-可观测性与治理](./02-可观测性与治理.md) — LLM监控与评估基础设施
+- [05-LLM SRE与生产运维](./05-LLM%20SRE与生产运维.md) — 生产运维与GPU容量规划
+- MLflow: https://mlflow.org — 实验跟踪和模型注册
+- Feast: https://feast.dev — 开源Feature Store
+- "Hidden Technical Debt in Machine Learning Systems" — Google NIPS 2015
+
 ---
 
 ## 参考资源
@@ -787,3 +828,5 @@ class LLMABTestPlatform:
 ---
 
 *上一篇: [AI合规与法律框架](./08-AI合规与法律框架.md)*
+
+*最后更新：2026-06-12*

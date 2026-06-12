@@ -11,6 +11,12 @@
 5. [DPO的理论](#5-dpo的理论)
 6. [其他对齐方法](#6-其他对齐方法)
 
+## 元数据
+- **难度**: ⭐⭐⭐
+- **前置知识**: [ch04-probability.md], [ch06-calculus.md]
+- **关联文件**: [ch10-llm-training.md], [ch13-reasoning-models-math.md]
+- **最后更新**: 2026-06-12
+
 ---
 
 ## 1. 强化学习基础
@@ -1423,3 +1429,44 @@ class KTOTrainer:
 | PPO-Clip | $L^{\text{CLIP}} = \mathbb{E}[\min(r_t \hat{A}_t, \text{clip}(r_t, 1-\epsilon, 1+\epsilon) \hat{A}_t)]$ |
 | RLHF最优策略 | $\pi^*(y\|x) = \frac{1}{Z(x)} \pi_{\text{ref}}(y\|x) \exp(r(x,y)/\beta)$ |
 | DPO损失 | $\mathcal{L}_{\text{DPO}} = -\mathbb{E}[\log \sigma(\beta \log \frac{\pi_\theta(y_w\|x)}{\pi_{\text{ref}}(y_w\|x)} - \beta \log \frac{\pi_\theta(y_l\|x)}{\pi_{\text{ref}}(y_l\|x)})]$ |
+
+---
+
+## 深度分析
+
+### RL的数学核心：探索-利用困境
+
+强化学习区别于监督学习的根本在于智能体不仅要利用已知的最优策略，还要探索未知的可能更优策略。这一困境在数学上可以用regret bound量化。PPO通过clip机制限制策略更新步长，GRPO通过组内相对奖励简化价值函数估计——这些都是平衡探索与利用的工程实践。
+
+### 从游戏AI到LLM对齐
+
+RL在LLM对齐中的应用（RLHF）代表了RL范式的重大转变：奖励函数不再是环境给出的客观分数，而是由另一个神经网络（奖励模型）学习的人类偏好。这使得RL的应用从完全可观测的游戏环境扩展到开放域的文本生成。
+
+---
+
+## RL实践Checklist
+
+- [ ] 理解MDP五元组（S/A/P/R/γ）的形式化定义
+- [ ] 掌握价值函数V(s)和Q函数Q(s,a)的区别
+- [ ] 理解策略梯度定理的数学推导
+- [ ] 能够实现PPO的clip目标和GAE优势估计
+- [ ] 理解RLHF中奖励模型的训练数据构造
+- [ ] 掌握DPO的闭式解推导
+- [ ] 了解GRPO与PPO的核心差异
+- [ ] 能够诊断RL训练中的reward hacking问题
+- [ ] 理解KL散度约束在策略优化中的作用
+- [ ] 了解在线RL与离线RL的适用场景差异
+
+---
+
+## 延伸阅读
+
+- [概率论](ch03-probability.md)
+- [优化理论](ch05-optimization.md)
+- [神经网络](ch06-neural-networks.md)
+- [大模型训练](ch10-llm-training.md)
+- [高级优化器](ch17-advanced-optimizers.md)
+
+---
+
+*最后更新：2026-06-12*

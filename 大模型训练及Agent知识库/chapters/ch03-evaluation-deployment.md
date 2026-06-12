@@ -11,6 +11,13 @@
 
 ---
 
+## 元数据
+- **难度**: ⭐⭐
+- **前置知识**: [预训练技术](../chapters/ch01-pretraining.md), [微调与对齐](../chapters/ch02-finetuning-alignment.md)
+- **关联文件**: ../chapters/ch01-pretraining.md, ../chapters/ch02-finetuning-alignment.md, ../appendices/appendix-a-glossary.md
+- **最后更新**: 2026-06-12
+---
+
 ## 1. 评估指标
 
 ### 1.1 自动评估指标
@@ -903,6 +910,29 @@ for token in client.chat_completion(messages, stream=True):
 
 ---
 
+## 深度分析
+
+大模型的评估是一个多层次、多维度的系统工程。自动评估指标（Perplexity、BLEU、ROUGE、BERTScore）各有所长——Perplexity衡量语言建模的内在质量，BLEU和ROUGE关注生成文本与参考文本的重叠程度，而BERTScore则通过预训练语义表征来评估生成质量。然而，自动指标无法完全替代人类评估，尤其是在有害性、有用性等需要主观判断的维度上。实践中通常采用"自动指标初筛 + 人类评估精评"的混合策略，既保证了评估效率，又兼顾了评估的可靠性。
+
+量化技术与推理优化是大模型从研究走向产品化的关键一环。4-bit量化（NF4、GPTQ）可以将模型显存占用降低至FP16的约1/8，使得70B级别的模型能够在单张A100上运行。推理优化方面，vLLM的PagedAttention和Continuous Batching将推理吞吐量提升了10-20倍，而TensorRT-LLM通过算子融合和内存优化进一步压榨了GPU性能。部署方案的选择需要平衡易用性、性能和扩展性——FastAPI适合快速原型，vLLM和TGI适合生产环境，而Ray Serve和KServe则面向大规模微服务架构。这些技术与[预训练](../chapters/ch01-pretraining.md)中的分布式训练优化、[微调](../chapters/ch02-finetuning-alignment.md)中的量化微调有着密切的技术关联。
+
+---
+
+## Checklist
+
+- [ ] 掌握 Perplexity、BLEU、ROUGE、BERTScore 的计算方法与适用场景
+- [ ] 能够设计人类评估维度（有用性、准确性、连贯性等）
+- [ ] 了解 8-bit 和 4-bit 量化的原理与实现差异
+- [ ] 区分 NF4 量化与 GPTQ 量化的技术路线
+- [ ] 理解 Flash Attention 在推理加速中的核心作用
+- [ ] 掌握 vLLM 的基本使用与参数配置
+- [ ] 了解 TensorRT-LLM 的引擎构建流程
+- [ ] 能够使用 FastAPI 搭建轻量级推理服务
+- [ ] 对比 TGI、vLLM、TensorRT-LLM 的优劣与适用场景
+- [ ] 理解量化、推理优化与部署方案之间的联动关系
+
+---
+
 ## 本章小结
 
 大模型评估与部署是将训练好的模型转化为生产服务的关键环节：
@@ -913,3 +943,17 @@ for token in client.chat_completion(messages, stream=True):
 4. **服务部署**（FastAPI、TGI、vLLM）提供从简单到复杂的多种部署方案，满足不同场景需求
 
 **下一章：** 我们将学习Agent架构，包括工具调用、规划、记忆等核心组件。
+
+---
+
+## 延伸阅读
+
+- [FlashAttention: Fast and Memory-Efficient Exact Attention](https://arxiv.org/abs/2205.14135) — Flash Attention 原始论文
+- [GPTQ: Accurate Post-Training Quantization for Generative Pre-trained Transformers](https://arxiv.org/abs/2210.17323) — GPTQ 量化方法
+- [Efficient Memory Management for Large Language Model Serving with PagedAttention](https://arxiv.org/abs/2309.06180) — vLLM 的 PagedAttention
+- [TensorRT-LLM: A TensorRT Toolset for LLM Inference](https://github.com/NVIDIA/TensorRT-LLM) — NVIDIA 推理优化工具集
+- [AWQ: Activation-aware Weight Quantization for LLM](https://arxiv.org/abs/2306.00978) — AWQ 量化方法
+
+---
+
+*最后更新: 2026-06-12*

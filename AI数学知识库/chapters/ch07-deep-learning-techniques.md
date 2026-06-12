@@ -8,6 +8,11 @@
 2. [归一化技术](#2-归一化技术)
 3. [深度学习关键技术综合应用](#3-深度学习关键技术综合应用)
 
+## 元数据
+- **难度**: ⭐⭐
+- **前置知识**: [第六章：神经网络基础](./ch06-neural-networks.md), [第二章：微积分](./ch02-calculus.md)
+- **关联文件**: [第八章：注意力机制](./ch08-attention-mechanism.md), [第九章：Transformer架构](./ch09-transformer.md)
+- **最后更新**: 2026-06-12
 ---
 
 ## 1. 正则化技术
@@ -360,4 +365,30 @@ class TransformerEncoder(nn.Module):
 3. **残差连接** 缓解深层网络的梯度问题
 4. 这些技术组合使用，构成了现代Transformer架构的基础
 
-**下一章：** 我们将深入学习**注意力机制**，这是Transformer和大语言模型的核心。
+## 深度分析
+
+归一化技术是深层神经网络训练的基石。在 LLM 中，LayerNorm 是 Transformer 的标准配置——它对每个 Token 的隐藏状态独立归一化，不受 Batch Size 影响，因此非常适合序列建模。值得注意的是，LLaMA 等新一代模型采用 RMSNorm（移除均值计算）替代 LayerNorm，在保持效果的同时降低了约 15% 的归一化计算量。Pre-LN（在子层之前归一化）架构相比 Post-LN（原始 Transformer 设计）显著提升了训练稳定性，是目前的主流选择。
+
+正则化技术在大模型中有新的演化。Dropout 在 GPT-3 等早期大模型中仍有使用，但在 LLaMA 等最新模型中已基本被移除，因为足够大规模的数据和训练本身就具有正则化效果。残差连接与归一化的协同工作使得训练 100 层以上的深度 Transformer 成为可能——梯度可以通过残差捷径直接回传，归一化则保证了每一层的激活值在合理范围内。理解这些技术的相互作用是设计稳定训练配置的关键。
+
+## 核心概念检查
+
+- [ ] 你能比较 BatchNorm、LayerNorm 和 RMSNorm 的数学公式及适用场景？
+- [ ] 你能解释为什么 Transformer 使用 LayerNorm 而非 BatchNorm？
+- [ ] 你能推导 Pre-LN 和 Post-LN 架构中梯度的流动路径差异？
+- [ ] 你能说明 Dropout 在训练和推理时的行为差异及其数学期望？
+- [ ] 你能分析残差连接 $y=x+F(x)$ 在反向传播中创建梯度捷径的原理？
+- [ ] 你能解释 RMSNorm 移除均值计算对梯度的影响？
+- [ ] 你能说明权重衰减（Weight Decay）在大模型预训练中的作用？
+- [ ] 你能描述完整的 Transformer Block 中各组件（LayerNorm、Attention、FFN、残差）的排列顺序？
+- [ ] 你能比较 Label Smoothing 与 Dropout 两种正则化策略的区别？
+- [ ] 你能分析为什么最新的 LLM 倾向于减少或移除 Dropout？
+
+## 延伸阅读
+
+- [第六章：神经网络基础](./ch06-neural-networks.md) - 神经网络组件基础
+- [第八章：注意力机制](./ch08-attention-mechanism.md) - Transformer 中的注意力
+- [第九章：Transformer架构](./ch09-transformer.md) - Pre-LN 与 Post-LN 架构
+- [第五章：数值优化](./ch05-optimization.md) - 正则化与训练优化
+
+**最后更新**: 2026-06-12

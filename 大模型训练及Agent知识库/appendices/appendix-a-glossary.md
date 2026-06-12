@@ -9,6 +9,12 @@
 
 ---
 
+## 元数据
+- **难度**: ⭐
+- **关联文件**: ../chapters/ch01-pretraining.md, ../chapters/ch02-finetuning-alignment.md, ../chapters/ch03-evaluation-deployment.md, ../chapters/ch04-agent-architecture.md
+- **最后更新**: 2026-06-12
+---
+
 ## 1. 预训练相关术语
 
 ### 1.1 基础概念
@@ -176,3 +182,7 @@
 | **UI** | User Interface | 用户界面 |
 | **URL** | Uniform Resource Locator | 统一资源定位符 |
 | **vLLM** | Virtual Large Language Model | 高性能LLM推理库 |
+
+---
+
+*最后更新: 2026-06-12*

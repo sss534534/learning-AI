@@ -9,6 +9,12 @@
 
 ---
 
+## 元数据
+- **难度**: ⭐
+- **关联文件**: ../chapters/ch01-pretraining.md, ../chapters/ch02-finetuning-alignment.md, ../chapters/ch03-evaluation-deployment.md, ../chapters/ch04-agent-architecture.md
+- **最后更新**: 2026-06-12
+---
+
 ## 1. 预训练模板
 
 ### 1.1 基础训练循环模板
@@ -880,3 +886,7 @@ if __name__ == "__main__":
 4. **部署模板** - 适用于将模型部署为API服务
 
 建议根据实际场景选择合适的模板，并进行必要的定制。
+
+---
+
+*最后更新: 2026-06-12*

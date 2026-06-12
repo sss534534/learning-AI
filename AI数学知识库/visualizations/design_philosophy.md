@@ -1,5 +1,14 @@
 # Mathematical Visualization Philosophy
 
+## 元数据
+
+- **难度**: ⭐
+- **前置知识**: 基础数学概念
+- **关联文件**: visualizations/README.md
+- **最后更新**: 2026-06-12
+
+---
+
 ## 设计哲学：数学可视化的科学美学
 
 ### 核心理念

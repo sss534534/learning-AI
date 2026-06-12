@@ -9,6 +9,12 @@
 
 ---
 
+## 元数据
+- **难度**: ⭐
+- **关联文件**: ../chapters/ch01-pretraining.md, ../chapters/ch02-finetuning-alignment.md, ../chapters/ch03-evaluation-deployment.md, ../chapters/ch04-agent-architecture.md
+- **最后更新**: 2026-06-12
+---
+
 ## 1. 论文推荐
 
 ### 1.1 基础模型论文
@@ -227,3 +233,7 @@
 6. **大规模训练** - 学习分布式训练、DeepSpeed等
 
 对于进阶学习者，可以关注最新论文和开源项目，参与社区讨论和贡献。
+
+---
+
+*最后更新: 2026-06-12*

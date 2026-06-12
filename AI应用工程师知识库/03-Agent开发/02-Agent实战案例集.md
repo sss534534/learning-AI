@@ -2,6 +2,13 @@
 
 > 包含多个真实场景的Agent实现案例
 
+## 元数据
+- **难度**: ⭐⭐⭐
+- **前置知识**: `../03-Agent开发/01-AI-Agent开发实战.md`
+- **关联文件**: `../03-Agent开发/04-OpenAI Agents SDK与Claude Code实战.md` | `../04-AI应用架构设计/02-Agent应用架构：MCP+A2A模式.md`
+- **最后更新**: 2026-06-12
+---
+
 ## 目录
 
 1. [智能代码审查Agent](#1-智能代码审查agent)
@@ -582,6 +589,32 @@ result = executor.invoke({
 | 流式输出 | 渐进式返回结果 |
 | 资源限制 | 设置超时和重试策略 |
 
+## 深度分析
+
+五个案例覆盖了 Agent 的典型应用场景：代码审查 Agent 展示了如何将开发流程自动化——通过 git diff 获取变更、flinter 做静态分析、LLM 做深度审查的三阶段流水线；数据分析 Agent 体现了工具编排的价值——Agent 自主决定调用 load_csv、describe_data、plot_data 等工具的时机和顺序。智能客服 Agent 则展示了知识检索与事务处理的融合——Agent 需要同时理解用户意图、搜索知识库、查询工单系统和用户信息。
+
+多 Agent 协作工作流（案例 4）是复杂度最高但也最具商业价值的模式。CrewAI 的角色化设计（研究员→写手→审核员）使每个 Agent 职责单一、Prompt 聚焦，任务之间的 context 传递天然实现了信息流编排。知识图谱问答 Agent 展示了 Agent 在结构化数据上的推理能力——通过 DFS 路径查找和图查询 API，Agent 能够回答多跳关系问题。这些案例的核心启示是：工具设计的质量直接决定 Agent 能力的上限，每个工具都应像微服务 API 一样精心设计。
+
+## Checklist
+
+- [ ] 为每个案例场景选择合适的 Agent 模式（ReAct / 状态机 / 多Agent编排）
+- [ ] 实现代码审查 Agent 的 git diff 获取和 lint 集成
+- [ ] 实现数据分析 Agent 的 pandas + matplotlib 工具链
+- [ ] 为智能客服 Agent 配置知识库检索和工单系统 API
+- [ ] 实现多 Agent 工作流中任务间的 context 传递
+- [ ] 实现知识图谱的图查询（DFS/BFS 路径查找）
+- [ ] 为每个工具添加参数校验和错误处理
+- [ ] 配置 Agent 的 verbose 模式用于调试和日志记录
+- [ ] 实现工具调用结果的缓存优化
+- [ ] 编写针对每个工具的单元测试
+
+## 延伸阅读
+
+- `../03-Agent开发/01-AI-Agent开发实战.md` — Agent 框架选型、LangGraph 状态机和工具开发的最佳实践
+- `../03-Agent开发/04-OpenAI Agents SDK与Claude Code实战.md` — 使用现代 SDK 替代手动构建 Agent 流程
+- `../04-AI应用架构设计/02-Agent应用架构：MCP+A2A模式.md` — 将案例中的工具封装为标准 MCP Server
+- `../../AI架构师知识库/06-MCP与A2A协议设计.md` — MCP 工具协议的设计规范和高级用法
+
 ---
 
-*最后更新：2026-05-12*
+*最后更新：2026-06-12*

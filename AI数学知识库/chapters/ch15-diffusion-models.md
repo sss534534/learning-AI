@@ -10,6 +10,12 @@
 4. [Flow Matching](#4-flow-matching)
 5. [条件生成数学](#5-条件生成数学)
 
+## 元数据
+- **难度**: ⭐⭐⭐
+- **前置知识**: [ch04-probability.md], [ch06-calculus.md]
+- **关联文件**: [ch16-multimodal-alignment.md]
+- **最后更新**: 2026-06-12
+
 ---
 
 ## 1. 前向扩散过程
@@ -1457,3 +1463,44 @@ class ConditionalDiffusion(nn.Module):
 | CFG | $\tilde{\boldsymbol{\epsilon}} = \boldsymbol{\epsilon}_{\varnothing} + s(\boldsymbol{\epsilon}_\mathbf{y} - \boldsymbol{\epsilon}_{\varnothing})$ |
 
 **下一章：** 我们将学习**强化学习数学基础**，包括马尔可夫决策过程、策略梯度方法和PPO算法的数学推导。
+
+---
+
+## 深度分析
+
+### 扩散模型的数学之美
+
+扩散模型将图像生成转化为一个逐步去噪的过程，融合了热力学（前向扩散过程）和统计学（逆向去噪过程）。关键的洞见是通过Langevin动力学从简单的高斯分布逐步逼近复杂的数据分布。相比GAN的对抗训练和VAE的变分推断，扩散模型在数学上更稳定、更可控。
+
+### 从像素空间到潜在空间
+
+Latent Diffusion Models将扩散过程从像素空间转移到VAE编码后的潜在空间，大幅降低了计算需求。图像在潜在空间的分布比像素空间更紧凑、更结构化，意味着去噪过程收敛更快。2025-2026年的趋势是将扩散模型扩展到视频（Sora）、3D生成等更复杂的生成任务。
+
+---
+
+## 扩散模型实践Checklist
+
+- [ ] 理解前向扩散过程的马尔可夫链形式化
+- [ ] 掌握逆向去噪过程的变分下界推导
+- [ ] 理解DDPM与DDIM采样算法的核心差异
+- [ ] 掌握classifier-free guidance的数学原理
+- [ ] 了解潜在扩散模型中VAE的编码-解码过程
+- [ ] 理解UNet与Transformer在扩散模型中的角色
+- [ ] 掌握扩散模型采样加速方法
+- [ ] 了解条件扩散模型的条件注入方式
+- [ ] 理解CFG scale对生成质量的影响
+- [ ] 了解扩散模型在AI数学推理中的新兴应用
+
+---
+
+## 延伸阅读
+
+- [概率论](ch03-probability.md)
+- [神经网络](ch06-neural-networks.md)
+- [深度学习技巧](ch07-deep-learning-techniques.md)
+- [注意力机制](ch08-attention-mechanism.md)
+- [Transformer](ch09-transformer.md)
+
+---
+
+*最后更新：2026-06-12*

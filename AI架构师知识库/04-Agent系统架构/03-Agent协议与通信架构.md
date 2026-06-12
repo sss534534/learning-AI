@@ -1,6 +1,15 @@
-# Agent协议与通信架构
+# Agent 协议与通信架构
 
-> 从MCP工具协议到A2A互操作，构建Agent互联网的通信基石
+> 从 MCP 工具协议到 A2A 互操作，构建 Agent 互联网的通信基石
+
+## 元数据
+
+- **难度**: ⭐⭐⭐
+- **前置知识**: [Agent架构演进](./01-Agent架构演进.md)
+- **关联文件**: [MCP协议2026演进](./09-MCP协议2026演进与无状态传输.md), [Agent应用架构：MCP+A2A模式](../../AI应用工程师知识库/04-AI应用架构设计/02-Agent应用架构：MCP+A2A模式.md), [MCP协议开发实战](../../AI应用工程师知识库/03-Agent开发/03-MCP协议开发实战.md)
+- **最后更新**: 2026-06-12
+
+---
 
 ## 目录
 1. [MCP协议（Model Context Protocol）](#1-mcp协议model-context-protocol)
@@ -25,9 +34,10 @@
 
 **协议版本演进：**
 ```
-2024-11  MCP 1.0    初始发布，定义核心原语
-2025-03  MCP 2025-03-26  新增Streamable HTTP传输、OAuth 2.1认证
-2025-XX  MCP 2.0(草案)   增强采样协议、结构化资源
+2024-11  MCP 1.0      初始发布，定义核心原语
+2025-03  MCP 2025-03-26    新增Streamable HTTP传输、OAuth 2.1认证
+2025-12  MCP → AAIF   Anthropic 将 MCP 捐赠给 Linux Foundation AAIF
+2026-07  MCP 2026-07-28 RC  无状态传输、Per-Request Authorization、Apps/Tasks
 ```
 
 ### 1.2 MCP三层架构
@@ -900,6 +910,29 @@ class OrchestratorAgent:
                         return name
         return list(self.a2a_clients.keys())[0]
 ```
+
+### 2.9 A2A v1.0 与行业整合（2026）
+
+#### A2A v1.0 发布
+
+2026 年初，A2A 协议达到 v1.0 正式版，拥有 150+ 支持组织，覆盖 Google、Microsoft、AWS 三大云平台。
+
+**v1.0 关键能力：**
+- Agent Card 发现机制标准化
+- 支持同步和异步任务生命周期
+- 安全通信与身份验证
+- 跨框架互操作
+
+#### ACP 合并
+
+2025 年 8 月，IBM 的 Agent Communication Protocol（ACP）与 A2A 正式合并。ACP 的 stateful 长任务概念被吸纳到 A2A 规范中。BeeAI 用户可通过 A2AServer/A2AAgent 适配器迁移。
+
+#### 行业采纳
+
+- Google ADK 原生支持 A2A
+- Microsoft Agent Framework 内置 A2A 客户端
+- LangGraph 通过插件支持 A2A
+- BeeAI Agent Stack 作为开源 A2A 部署基础设施
 
 ---
 
@@ -1897,4 +1930,76 @@ class HybridReasoningAgent:
 
 ---
 
-*最后更新：2026-05-12*
+## 6. 深度分析
+
+### 6.1 MCP vs A2A：核心定位对比
+
+| 维度 | MCP | A2A |
+|------|-----|-----|
+| 角色 | Agent 连接到工具 | Agent 连接到 Agent |
+| 关系 | 层级（Agent 控制工具） | 对等（Agent 协作） |
+| 发现 | tools/list | Agent Card（.well-known） |
+| 状态 | 无状态（2026-07 RC 后） | 有状态任务生命周期 |
+| 通信 | 请求-响应 | 任务-结果（可异步） |
+| 治理 | AAIF（Anthropic 捐赠） | AAIF（Google 捐赠） |
+| 成熟度 | 2024-11 发布 → 2026-07 RC | 2025-04 发布 → v1.0 |
+
+### 6.2 协议选择决策树
+
+```
+你需要在 Agent 系统中做什么？
+├── Agent 需要调用工具 → MCP
+│   ├── 本地工具 → stdio 传输
+│   └── 远程工具 → Streamable HTTP
+├── Agent 需要与其他 Agent 协作 → A2A
+│   ├── 同一框架内 Agent → 框架原生通信
+│   └── 跨框架/跨组织 Agent → A2A
+└── 两者都要 → MCP + A2A 双协议
+    └── 这是 2026 年生产系统的标准配置
+```
+
+### 6.3 2026 生产配置建议
+
+```yaml
+# 生产级 Agent 通信配置（2026 推荐）
+agent:
+  protocols:
+    mcp:
+      version: "2026-07-28"
+      transport: streamable-http
+      auth: per-request-bearer
+    a2a:
+      version: "1.0"
+      discovery: agent-card
+      security: skill-scoped-oauth
+  
+  tools:
+    registry: internal-mcp-registry
+    search: true  # 动态工具搜索
+    
+  audit:
+    all-calls: true
+    tracing: opentelemetry
+```
+
+### 6.4 常见误区
+
+1. **"A2A 将取代 MCP"** — 两者解决完全不同的问题，互相补充而非竞争
+2. **"框架内通信不需要 A2A"** — 同一框架内使用框架通信更高效，A2A 为跨框架设计
+3. **"MCP stdio 模式够用"** — stdio 适合本地开发，生产环境必须用 Streamable HTTP
+
+---
+
+## 7. Checklist
+
+- [ ] 理解 MCP（Agent↔工具）和 A2A（Agent↔Agent）的分工
+- [ ] 知道 MCP 三原语：Tools / Resources / Prompts
+- [ ] 理解 A2A Agent Card 的发现机制
+- [ ] 知道 2026 年 MCP 无状态传输 RC 对生产部署的影响
+- [ ] 知道 A2A v1.0 已发布且 ACP 已合并
+- [ ] 理解"协议优于框架"的设计思想
+- [ ] 生产环境使用双协议（MCP + A2A）
+
+---
+
+**最后更新：2026-06-12**

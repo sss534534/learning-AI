@@ -12,6 +12,13 @@
 
 ---
 
+## 元数据
+- **难度**: ⭐⭐⭐
+- **前置知识**: [微调与对齐](../chapters/ch02-finetuning-alignment.md), [评估与部署](../chapters/ch03-evaluation-deployment.md)
+- **关联文件**: ../chapters/ch02-finetuning-alignment.md, ../chapters/ch03-evaluation-deployment.md, ../appendices/appendix-a-glossary.md
+- **最后更新**: 2026-06-12
+---
+
 ## 1. Agent基础概念
 
 ### 1.1 什么是Agent？
@@ -523,6 +530,29 @@ Select tools (comma-separated):"""
 
 ---
 
+## 深度分析
+
+Agent 架构是大语言模型从被动生成走向主动推理的关键范式转变。ReAct（Reasoning + Acting）框架通过将推理链与工具调用交错进行，赋予了模型动态获取外部信息和执行操作的能力，有效缓解了大模型在事实知识上的幻觉问题和对实时数据的依赖。Plan-and-Execute 架构则在 ReAct 的基础上进一步分离了规划与执行两个阶段，使得复杂任务可以被分解为可管理的子目标序列。两种模式各有适用场景：ReAct 更灵活，适合探索性任务；Plan-and-Execute 更高效，适合结构化任务。实践中，许多系统采用了混合策略——先规划再执行，并在执行过程中动态调整计划。
+
+反射与自我改进机制将 Agent 从单次执行的工具提升为持续进化的学习系统。通过反思自身的执行过程、识别错误模式并调整策略，Agent 可以在多次执行中不断改进性能。多Agent协作（参见附录中的多Agent系统）进一步扩展了能力边界——不同 Agent 可以负责不同的专业领域，通过通信协议协作完成超出一个 Agent 能力范围的复杂任务。实现一个健壮的 Agent 系统，不仅需要理解本章的架构模式，还需要结合[微调与对齐](../chapters/ch02-finetuning-alignment.md)中的指令遵循能力和[评估部署](../chapters/ch03-evaluation-deployment.md)中的推理优化技术，确保 Agent 在真实环境中的可靠性、可控性和效率。
+
+---
+
+## Checklist
+
+- [ ] 理解 Agent 与传统 LLM 的核心区别（工具使用、记忆、多步推理）
+- [ ] 掌握 ReAct 框架的 Thought-Action-Observation 循环
+- [ ] 能够实现一个基本的 ReAct Agent 代码框架
+- [ ] 理解 Plan-and-Execute 与 ReAct 的差异及适用场景
+- [ ] 掌握反射（Reflection）机制的实现原理
+- [ ] 了解链式思考（Chain-of-Thought）在推理中的作用
+- [ ] 能够实现工具选择（Tool Selection）的逻辑
+- [ ] 理解短期记忆与长期记忆在 Agent 中的角色
+- [ ] 了解多Agent协作的三种模式：层级、工作组、流水线
+- [ ] 思考 Agent 系统在生产环境中的可靠性、安全性与可观测性挑战
+
+---
+
 ## 本章小结
 
 Agent架构设计是构建智能系统的核心：
@@ -533,3 +563,17 @@ Agent架构设计是构建智能系统的核心：
 4. **工具使用** 扩展了Agent的能力边界
 
 **下一章：** 我们将学习工具调用与Function Calling的具体实现。
+
+---
+
+## 延伸阅读
+
+- [ReAct: Synergizing Reasoning and Acting in Language Models](https://arxiv.org/abs/2210.03629) — ReAct 原始论文
+- [Chain-of-Thought Prompting Elicits Reasoning in Large Language Models](https://arxiv.org/abs/2201.11903) — 思维链提示方法
+- [Self-Refine: Iterative Refinement with Self-Feedback](https://arxiv.org/abs/2303.17651) — 自我反思与改进
+- [WebGPT: Browser-assisted question-answering with human feedback](https://arxiv.org/abs/2112.09332) — 基于网页浏览的 Agent
+- [HuggingGPT: Solving AI Tasks with ChatGPT and its Friends](https://arxiv.org/abs/2303.17580) — 多Agent协作框架
+
+---
+
+*最后更新: 2026-06-12*

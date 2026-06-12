@@ -2,18 +2,28 @@
 
 > 构建智能Agent应用的完整指南
 
+## 元数据
+- **难度**: ⭐⭐⭐
+- **前置知识**: `../01-LLM应用开发基础/01-LLM-API调用与集成.md` | `../02-RAG应用实战/01-RAG应用开发实战.md`
+- **关联文件**: `../03-Agent开发/02-Agent实战案例集.md` | `../03-Agent开发/04-OpenAI Agents SDK与Claude Code实战.md` | `../04-AI应用架构设计/02-Agent应用架构：MCP+A2A模式.md`
+- **最后更新**: 2026-06-12
+---
+
 ## 1. Agent开发框架
 
 ### 1.1 框架对比选型
 
-| 框架 | 语言 | 特点 | 学习曲线 | 适用场景 |
-|------|------|------|----------|----------|
-| **LangChain + LangGraph** | Python/JS | 生态最大、灵活 | 中 | 通用开发 |
-| **LlamaIndex** | Python | RAG+Agent一体化 | 低 | 知识密集型 |
-| **CrewAI** | Python | 多Agent协作、易用 | 低 | 业务流程 |
-| **AutoGen** | Python | 对话驱动、研究导向 | 中 | 研究/探索 |
-| **Spring AI** | Java | Java生态集成 | 中 | 企业级Java应用 |
-| **LangChain4j** | Java | 声明式AI服务 | 低 | Java后端 |
+| 框架 | 语言 | 特点 | 学习曲线 | 适用场景 | 2026 状态 |
+|------|------|------|----------|----------|-----------|
+| **LangChain + LangGraph** | Python/JS | 生态最大、灵活 | 中 | 通用开发 | 1.0 GA，行业标准 |
+| **LlamaIndex** | Python | RAG+Agent一体化 | 低 | 知识密集型 | 持续迭代 |
+| **CrewAI** | Python | 多Agent协作、易用 | 低 | 业务流程 | 1.0 GA |
+| **OpenAI Agents SDK** | Python | 托管运行时、安全护栏 | 低 | OpenAI 生态 | Swarm 归档替代品 |
+| **MS Agent Framework** | Python/C# | Entra ID、Purview 合规 | 高 | 企业微软生态 | AutoGen 合并至此 |
+| **Claude Code** | CLI | 最强 AI coding Agent | 低 | 软件开发 | Dynamic Workflows |
+| **Hermes Agent** | Python | 开源、MCP 原生 | 中 | 自托管 | 172k ⭐ |
+| **Spring AI** | Java | Java生态集成 | 中 | 企业级Java应用 | 稳定 |
+| **LangChain4j** | Java | 声明式AI服务 | 低 | Java后端 | 稳定 |
 
 ### 1.2 LangGraph核心概念
 
@@ -565,4 +575,72 @@ def check_permission(tool_name, user_role):
 
 ---
 
-*最后更新：2026-05-07*
+## 8. 2026 Agent 开发前沿实践
+
+### 8.1 从"框架选型"到"协议优先"
+
+2026 年的 Agent 开发核心转变：**框架是可替换的实现细节，MCP/A2A 协议是基础设施。**
+
+```
+传统思维：
+  选一个框架 → 学习框架 API → 锁定在框架生态
+
+2026 思维：
+  理解 MCP（工具协议）+ A2A（Agent 协议）
+  → 选择兼容这些协议的框架
+  → 框架可替换，协议不变
+```
+
+### 8.2 推荐开发栈（2026）
+
+```
+生产级 Agent 开发栈：
+
+Agent 层：Claude Code（CLI 开发）/ OpenAI Agents SDK（托管）
+框架层：LangGraph 1.0（复杂工作流）/ CrewAI 1.0（角色协作）
+协议层：MCP（工具连接）+ A2A（Agent 互操作）
+工具层：自定义 MCP Server（标准化工具封装）
+可观测：LangSmith / OpenTelemetry（tracing）
+成本层：AI Credits 计量 + 模型级联（FinOps）
+```
+
+### 8.3 关键能力矩阵
+
+| 能力 | 旧方法 | 2026 方法 |
+|------|--------|-----------|
+| 工具集成 | 自定义 tool 函数 | MCP Server 标准化接口 |
+| Agent 协作 | 单一框架内通信 | A2A 跨框架互操作 |
+| 状态持久化 | 内存管理 | Checkpoint + 图数据库 |
+| 成本控制 | 无 | AI Credits 计量 + 级联路由 |
+| 安全 | 无 | Agent 身份 + skill-scoped OAuth |
+| 开发工具 | 手写代码 | Harness Engineering + AGENTS.md |
+
+## 深度分析
+
+2026 年的 Agent 开发范式已完成从"框架驱动"到"协议驱动"的转变。LangGraph 1.0 和 CrewAI 1.0 在框架层趋于成熟，但真正的变革在于 MCP 和 A2A 协议将 Agent 能力的提供与消费解耦。开发者不再需要绑定特定框架——只要框架兼容 MCP/A2A，工具和 Agent 就可以跨框架复用。这意味着选型重点从"哪个框架功能最强"转向"哪个框架对协议的支持最完善"。
+
+生产级 Agent 系统需要关注三个关键维度：安全、成本和可观测性。工具执行沙箱（subprocess + 资源限制）、权限分级（all / authenticated / admin）和人工审批节点构成了安全防线。成本方面，AI Credits 计量和模型级联策略（先尝试便宜模型，复杂情况升级到昂贵模型）正在成为标准实践。可观测性上，LangSmith 和 OpenTelemetry 的结合使得 Agent 的思考轨迹、工具调用和决策路径完全可追溯，这对调试和审计至关重要。
+
+## Checklist
+
+- [ ] 选择合适的 Agent 框架并根据协议兼容性做技术评估
+- [ ] 设计 Agent 状态图（StateGraph），明确节点、边和条件路由
+- [ ] 开发工具时遵循单一职责、清晰描述、参数校验和幂等性原则
+- [ ] 实现工具执行的沙箱隔离和权限分级控制
+- [ ] 配置最大循环次数和循环检测防止 Agent 死循环
+- [ ] 实现记忆/状态持久化（MemorySaver + Checkpoint）
+- [ ] 部署人机协同机制（高风险操作人工审批、低置信度升级）
+- [ ] 集成 LangSmith 或 OpenTelemetry 实现全过程追踪
+- [ ] 实现 AI Credits 计量和模型级联路由的成本控制
+- [ ] 将 MCP Server 集成作为默认工具接入方式
+
+## 延伸阅读
+
+- `../03-Agent开发/02-Agent实战案例集.md` — 多个真实场景的完整 Agent 实现代码
+- `../03-Agent开发/04-OpenAI Agents SDK与Claude Code实战.md` — 2026 年两大主流 SDK 的对比和实践
+- `../04-AI应用架构设计/02-Agent应用架构：MCP+A2A模式.md` — 协议驱动的 Agent 架构设计详解
+- `../../AI架构师知识库/06-MCP与A2A协议设计.md` — MCP 和 A2A 协议的标准化设计和最佳实践
+
+---
+
+*最后更新：2026-06-12*

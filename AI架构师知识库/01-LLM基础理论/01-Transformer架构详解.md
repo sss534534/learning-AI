@@ -1,322 +1,324 @@
-# Transformer架构详解
+# Transformer 架构详解
 
-> 理解现代大模型的基石架构
+> 从 Google 2017 年的核心论文到 2026 年混合架构的基石
 
-## 1. 架构概览
+## 元数据
 
-Transformer架构由Google在2017年论文《Attention Is All You Need》中提出，彻底改变了NLP领域。其核心创新是**完全基于注意力机制**，摒弃了传统的RNN/CNN结构。
+- **难度**: ⭐⭐⭐
+- **前置知识**: [注意力机制数学原理](../../AI数学知识库/chapters/ch08-attention-mechanism.md), [Transformer数学基础](../../AI数学知识库/chapters/ch09-transformer.md)
+- **关联文件**: [推理模型与Test-Time Compute](./06-推理模型与Test-Time%20Compute.md), [Agent架构演进](../04-Agent系统架构/01-Agent架构演进.md), [Mamba-Transformer与MoE演进](./10-新型模型架构Mamba-Transformer与MoE演进.md)
+- **最后更新**: 2026-06-12
 
-### 1.1 整体结构
+---
+
+## 目录
+
+1. [核心概念](#1-核心概念)
+2. [数学原理](#2-数学原理)
+3. [架构细节](#3-架构细节)
+4. [工程实现与优化](#4-工程实现与优化)
+5. [深度分析](#5-深度分析)
+6. [Checklist](#6-checklist)
+7. [延伸阅读](#7-延伸阅读)
+
+---
+
+## 1. 核心概念
+
+### 1.1 什么是 Transformer
+
+Transformer 由 Google 在 2017 年论文《Attention Is All You Need》中提出，核心创新是**完全基于注意力机制**，摒弃了传统 RNN/CNN 结构。这是现代所有大模型（GPT、LLaMA、BERT、T5 等）的架构基础。
+
+### 1.2 整体结构
 
 ```
 输入 → [Embedding + Positional Encoding] → 
       [Encoder × N] → [Decoder × N] → 输出
 ```
 
-**Encoder-Decoder架构特点：**
+**Encoder-Decoder 架构特点：**
 - **Encoder**: 将输入序列编码为上下文表示（双向注意力）
-- **Decoder**: 基于编码器输出自回归生成序列（单向注意力+交叉注意力）
+- **Decoder**: 基于编码器输出自回归生成序列（单向注意力 + 交叉注意力）
 
-**典型模型演进：**
-| 模型 | 架构 | 特点 |
-|------|------|------|
-| BERT | Encoder-only | 双向编码，适合理解任务 |
-| GPT系列 | Decoder-only | 单向生成，适合生成任务 |
-| T5 | Encoder-Decoder | 统一框架，适合翻译/摘要 |
+**主流变体：**
 
-### 1.2 核心组件
+| 模型 | 架构 | 特点 | 代表 |
+|------|------|------|------|
+| Encoder-only | 仅编码器 | 双向编码，适合理解任务 | BERT、RoBERTa |
+| Decoder-only | 仅解码器 | 单向生成，适合生成任务 | GPT、LLaMA、Qwen |
+| Encoder-Decoder | 编码器+解码器 | 统一框架，适合翻译/摘要 | T5、BART |
+
+### 1.3 核心组件
 
 ```
 Transformer Block
-├── Multi-Head Self-Attention
-├── Add & Norm (残差连接 + LayerNorm)
-├── Feed-Forward Network (FFN)
+├── Multi-Head Self-Attention（多头自注意力）
+├── Add & Norm（残差连接 + LayerNorm/RMSNorm）
+├── Feed-Forward Network（前馈网络）
 └── Add & Norm
 ```
 
----
-
-## 2. 自注意力机制（Self-Attention）
-
-### 2.1 核心思想
-
-> 每个token都能"看到"序列中所有其他token，并根据相关性加权聚合信息
-
-**类比理解：**
-- 想象你在阅读一句话时，眼睛会自然地在关键词之间跳跃
-- "它"这个词会特别关注前文提到的名词
-- Self-Attention就是让这个"关注"过程可计算、可学习
-
-### 2.2 Query-Key-Value机制
-
-**数学表达：**
-
-```
-Attention(Q, K, V) = softmax(QK^T / √d_k) × V
-```
-
-**三个向量的含义：**
-
-| 向量 | 作用 | 类比 |
-|------|------|------|
-| **Query (Q)** | 当前token的"查询意图" | 你提出的问题 |
-| **Key (K)** | 每个token的"身份标识" | 图书馆的索引卡片 |
-| **Value (V)** | 每个token的"实际内容" | 书中的实际内容 |
-
-**计算流程：**
-
-1. **相似度计算**: Q × K^T → 得到注意力分数（点积）
-2. **缩放**: 除以√d_k（防止softmax梯度消失）
-3. **归一化**: softmax → 得到注意力权重（和为1）
-4. **加权求和**: 权重 × V → 输出上下文向量
-
-### 2.3 多头注意力（Multi-Head Attention）
-
-**核心思想：** 使用多组Q-K-V，让模型从不同"角度"理解关系
-
-```
-MultiHead(Q, K, V) = Concat(head_1, ..., head_h) × W^O
-where head_i = Attention(QW_i^Q, KW_i^K, VW_i^V)
-```
-
-**为什么需要多头？**
-
-| Head | 关注的关系类型 | 示例 |
-|------|----------------|------|
-| Head 1 | 句法关系 | 主语-谓语 |
-| Head 2 | 语义关系 | 同义词 |
-| Head 3 | 指代关系 | 代词-先行词 |
-| Head 4 | 位置关系 | 相邻词 |
-
-**典型配置：**
-- GPT-3: 96 heads, d_k = d_v = 128
-- LLaMA-2: 32 heads, d_k = d_v = 128
+现代 decoder-only 模型将上述 block 堆叠 32-96 层形成深层网络。
 
 ---
 
-## 3. 位置编码（Positional Encoding）
+## 2. 数学原理
 
-### 3.1 为什么需要位置编码？
+### 2.1 Scaled Dot-Product Attention
 
-> Self-Attention是**位置无关**的："我爱猫"和"猫爱我"计算出的注意力分数相同
+**定义：** 给定 Query Q、Key K、Value V，注意力输出为：
 
-**解决方案：** 为每个位置添加唯一的编码，让模型感知顺序
+$$ \text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right) V $$
 
-### 3.2 绝对位置编码
+**逐步骤分析：**
 
-**原始Transformer使用正弦/余弦函数：**
+| 步骤 | 运算 | 维度变化 | 含义 |
+|------|------|----------|------|
+| 1 | $QK^T$ | $(n \times d_k)(d_k \times n) \to (n \times n)$ | 每个 token 对其他 token 的注意力分数 |
+| 2 | $\div \sqrt{d_k}$ | $(n \times n)$ | 缩放防止 softmax 梯度消失 |
+| 3 | $\text{softmax}$ | $(n \times n)$ | 行归一化，和为 1 的概率分布 |
+| 4 | $\times V$ | $(n \times n)(n \times d_v) \to (n \times d_v)$ | 加权聚合 Value |
 
-```
-PE(pos, 2i)   = sin(pos / 10000^(2i/d_model))
-PE(pos, 2i+1) = cos(pos / 10000^(2i/d_model))
-```
+**为什么除以 $\sqrt{d_k}$？**
 
-**优点：**
-- 无需学习参数
-- 可外推到训练时未见过的长度
-- 相对位置可表示（PE(pos+k)可由PE(pos)线性变换得到）
+当 $d_k$ 较大时，点积的方差增大（为 $d_k$），softmax 的输入会集中在极值区域，梯度趋近于 0。除以 $\sqrt{d_k}$ 将方差归一化为 1，保持梯度的稳定性。
 
-### 3.3 相对位置编码
+### 2.2 多头注意力
 
-**RoPE (Rotary Position Embedding)** - 现代大模型主流方案
+$$ \text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, \ldots, \text{head}_h) W^O $$
 
-**核心思想：** 通过旋转矩阵编码相对位置
+其中每个 head:
 
-```
-R_Θ^d × x = 
-[x_1, x_2, x_3, x_4, ...]  →  [x_1cosθ - x_2sinθ, x_1sinθ + x_2cosθ, ...]
-```
+$$ \text{head}_i = \text{Attention}(QW_i^Q, KW_i^K, VW_i^V) $$
 
-**优势：**
-- 更好的长文本外推能力
-- 相对位置信息更明确
-- 被LLaMA、ChatGLM、Qwen等主流模型采用
+**参数量分析：** 对 $h$ 个 head，每个 head 有独立的 $W_i^Q \in \mathbb{R}^{d_{model} \times d_k}$，$W_i^K \in \mathbb{R}^{d_{model} \times d_k}$，$W_i^V \in \mathbb{R}^{d_{model} \times d_v}$。因此多头总参数量与单头（$d_k = d_{model}$）相同，但每个 head 关注不同的关系模式。
 
-### 3.4 ALiBi (Attention with Linear Biases)
+| 模型 | $d_{model}$ | $n_{heads}$ | $d_k$ | 总参数量 |
+|------|-------------|-------------|-------|----------|
+| GPT-3 | 12288 | 96 | 128 | 175B |
+| LLaMA-2-70B | 8192 | 64 | 128 | 70B |
+| LLaMA-3-405B | 16384 | 128 | 128 | 405B |
 
-**核心思想：** 直接在注意力分数上添加距离惩罚
+### 2.3 位置编码
 
-```
-AttentionScore = QK^T/√d_k + m × [- (i-j)]
-```
+**问题：** Self-Attention 是置换等变的（permutation equivariant）——"我爱猫"和"猫爱我"计算的注意力分数相同。
 
-**优势：**
-- 极强的长文本外推能力
-- 无需修改位置编码
-- BLOOM、MPT等模型使用
+#### 绝对位置编码（Sinusoidal）
+
+原始 Transformer 使用正弦/余弦函数：
+
+$$ PE(pos, 2i) = \sin(pos / 10000^{2i/d_{model}}) $$
+$$ PE(pos, 2i+1) = \cos(pos / 10000^{2i/d_{model}}) $$
+
+**优点：** 无需学习、可外推到未见过的长度。
+
+#### RoPE（Rotary Position Embedding）
+
+现代大模型（LLaMA、Qwen、ChatGLM）的主流方案。通过旋转矩阵编码相对位置：
+
+$$ f_q(x_m, m) = (x_m W_q) e^{im\theta} $$
+
+在二维子空间中的实现：
+
+$$ \text{RoPE}(x) = \begin{pmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\theta \end{pmatrix} \begin{pmatrix} x_1 \\ x_2 \end{pmatrix} $$
+
+**RoPE 的核心优势：** 点积 $f_q(x_m, m) \cdot f_k(x_n, n)$ 只依赖于相对位置 $(m-n)$，使相对位置信息被显式编码。
+
+#### ALiBi（Attention with Linear Biases）
+
+直接在注意力分数上添加距离惩罚：
+
+$$ \text{score}(i, j) = \frac{q_i \cdot k_j}{\sqrt{d_k}} + m \cdot |i - j| $$
+
+| 编码 | 外推能力 | 参数量 | 代表模型 |
+|------|----------|--------|----------|
+| Sinusoidal | 中等 | 0 | 原始 Transformer |
+| RoPE | 强 | 0 | LLaMA、Qwen、ChatGLM |
+| ALiBi | 极强 | 0 | BLOOM、MPT |
+| 可学习 | 弱 | $L \times d$ | BERT |
+
+### 2.4 前馈网络（FFN）
+
+$$ FFN(x) = \max(0, xW_1 + b_1)W_2 + b_2 $$
+
+中间维度通常 $d_{ff} = 4 \times d_{model}$。SwiGLU 变体（LLaMA 采用）：
+
+$$ SwiGLU(x) = (xW_1 \odot \text{Swish}(xW_2))W_3 $$
+
+其中 $\text{Swish}(x) = x \cdot \sigma(x)$。相比 ReLU，Swish 在零点附近更平滑，梯度更稳定。
 
 ---
 
-## 4. 前馈网络与归一化
+## 3. 架构细节
 
-### 4.1 Feed-Forward Network (FFN)
+### 3.1 数据流图
 
-**结构：**
 ```
-FFN(x) = max(0, xW_1 + b_1)W_2 + b_2
+Input Tokens: ["我", "爱", "AI"]
+        ↓
+Embedding → [d_model 维向量] × 3
+        ↓
++ Positional Encoding (RoPE)
+        ↓
+┌─────────────────────────────────────────────┐
+│  Transformer Block × N                       │
+│                                              │
+│  ┌─────────────────┐                        │
+│  │ Multi-Head       │  Q, K, V 来自输入     │
+│  │ Self-Attention   │  输出: 上下文向量      │
+│  └────────┬────────┘                        │
+│           ↓                                 │
+│  ┌─────────────────┐                        │
+│  │ Add & Norm      │  x = LayerNorm(x + SA) │
+│  └────────┬────────┘                        │
+│           ↓                                 │
+│  ┌─────────────────┐                        │
+│  │ Feed-Forward     │  SwiGLU 或 ReLU       │
+│  │ Network          │  输出: 变换后表示      │
+│  └────────┬────────┘                        │
+│           ↓                                 │
+│  ┌─────────────────┐                        │
+│  │ Add & Norm      │  x = LayerNorm(x + FFN)│
+│  └────────┬────────┘                        │
+└───────────┼─────────────────────────────────┘
+            ↓
+输出: 上下文感知的 token 表示
 ```
 
-**特点：**
-- 两个线性变换夹一个ReLU/GELU激活
-- 中间维度通常是输入的4倍（如d_model=512, d_ff=2048）
-- **每个token独立计算**（无token间交互）
-
-**现代变体 - SwiGLU：**
-```
-SwiGLU(x) = (xW_1 ⊗ Swish(xW_2))W_3
-```
-- 被LLaMA、PaLM等采用
-- 性能更好但参数量增加
-
-### 4.2 归一化层
-
-**LayerNorm vs RMSNorm：**
+### 3.2 LayerNorm vs RMSNorm
 
 | 特性 | LayerNorm | RMSNorm |
 |------|-----------|---------|
-| 公式 | (x - μ) / √(σ² + ε) | x / √(mean(x²) + ε) |
-| 去均值 | 是 | 否 |
-| 计算量 | 较大 | 较小 |
-| 使用模型 | BERT、GPT-2 | LLaMA、Qwen |
+| 公式 | $\frac{x - \mu}{\sqrt{\sigma^2 + \epsilon}}$ | $\frac{x}{\sqrt{\text{mean}(x^2) + \epsilon}}$ |
+| 去均值 | ✅ 是 | ❌ 否 |
+| 参数量 | $2d$（缩放 + 偏移） | $d$（仅缩放） |
+| 计算量 | 较高 | 低 15-30% |
+| 使用模型 | BERT、GPT-2 | LLaMA、Qwen、Mistral |
 
-**为什么用RMSNorm？**
-- 去均值操作在深层网络中作用有限
-- 减少计算量，加速训练
-- 现代大模型普遍采用
-
-### 4.3 残差连接（Residual Connection）
-
-```
-output = LayerNorm(x + Sublayer(x))
-```
-
-**作用：**
-- 缓解梯度消失，支持深层网络（100+层）
-- 保留原始信息，注意力层专注学习"差异"
+**RMSNorm 在深层网络中的优势：** 去均值操作在深层网络中提供的边际收益递减，而移除该操作节省的计算量在大规模训练中显著。
 
 ---
 
-## 5. 解码策略
+## 4. 工程实现与优化
 
-### 5.1 贪心解码（Greedy Decoding）
+### 4.1 计算复杂度
 
-**策略：** 每步选择概率最高的token
+**Self-Attention 复杂度：**
+- 时间: $O(n^2 \cdot d)$ — 序列长度的平方
+- 空间: $O(n^2)$ — 注意力矩阵存储
 
-**优点：** 简单、快速
-**缺点：** 容易陷入局部最优，生成内容单调
+**优化方向演进：**
 
-### 5.2 Beam Search
+| 技术 | 原理 | 效果 |
+|------|------|------|
+| Sparse Attention | 限制每个 token 只关注固定窗口 | $O(n)$ 复杂度 |
+| FlashAttention | GPU 显存层级优化，避免注意力矩阵写到 HBM | 2-4x 加速 |
+| FlashAttention-2 | 优化线程块调度 | 1.5-2x over FA1 |
+| PagedAttention | KV Cache 分页管理 | 显存利用率提升 90%+ |
+| Multi-Query Attention | 所有 head 共享 K,V | 推理显存大幅降低 |
+| Grouped-Query Attention | head 分组共享 K,V | GQA 在 MQA 和 MHA 间平衡 |
 
-**策略：** 每步保留top-k个候选序列
+### 4.2 部署优化配置
 
-**参数：**
-- beam_width: 候选序列数量（通常4-10）
-- length_penalty: 长度惩罚（避免过短/过长）
+```python
+# vLLM 部署 Transformer 模型的生产配置
+from vllm import LLM, SamplingParams
 
-**适用场景：** 机器翻译、摘要（有明确参考答案的任务）
+llm = LLM(
+    model="meta-llama/Llama-3-70B",
+    tensor_parallel_size=4,      # 4 张 GPU 张量并行
+    max_model_len=32768,         # 32K 上下文
+    gpu_memory_utilization=0.90, # 显存利用率
+    kv_cache_dtype="fp8",        # KV Cache 量化
+    enable_prefix_caching=True,  # 前缀缓存（复用公共前缀）
+)
 
-### 5.3 采样策略
-
-**Temperature Sampling：**
-```
-p_i = exp(z_i/T) / Σexp(z_j/T)
-```
-- T→0: 接近贪心解码
-- T→∞: 均匀分布
-- **推荐值：** 0.7-1.0
-
-**Top-k Sampling：**
-- 只从概率最高的k个token中采样
-- **推荐值：** k=40-50
-
-**Top-p (Nucleus) Sampling：**
-- 从累积概率达到p的最小集合中采样
-- **推荐值：** p=0.9-0.95
-
-**组合策略：**
-```
-Temperature=0.7 + Top-p=0.9  # 最常用配置
+params = SamplingParams(
+    temperature=0.7,
+    top_p=0.9,
+    max_tokens=2048,
+)
 ```
 
 ---
 
-## 6. 模型规模与计算量
+## 5. 深度分析
 
-### 6.1 参数量估算
+### 5.1 与 RNN/CNN 的对比
+
+| 维度 | Transformer | RNN | CNN |
+|------|-------------|-----|-----|
+| 序列建模 | 并行（全部位置同时计算） | 串行（逐步计算） | 并行（定长窗口） |
+| 长程依赖 | ✅ 直接（任意距离 O(1)） | ❌ 困难（梯度消失） | ❌ 受限（感受野） |
+| 计算复杂度 | $O(n^2)$ | $O(n)$ | $O(kn)$ |
+| 位置感知 | 需要额外编码 | 天然有序 | 天然有序 |
+| 参数量 | 最大 | 最小 | 中等 |
+
+### 5.2 常见误区
+
+1. **"Transformer 没有归纳偏置"**
+   - 实际上位置编码和残差连接都是偏置
+   - 相对位置编码（RoPE）引入更强的语言结构偏置
+
+2. **"注意力熵崩溃"**
+   - 深层网络中注意力分布趋于均匀
+   - 解决方案：Pre-LayerNorm（归一化前置）、残差缩放
+
+3. **"KV Cache 显存不是问题"**
+   - 对 32K 序列、70B 模型，KV Cache 需要 ~64GB 显存
+   - PagedAttention + FP8 量化是必备方案
+
+4. **"Decoder-only 一定比 Encoder-Decoder 好"**
+   - 只是规模化效率更高，但翻译/摘要等任务 Encoder-Decoder 仍有优势
+
+### 5.3 前沿演进（2026 视角）
+
+**2026 年 Transformer 架构的演进方向：**
 
 ```
-总参数量 ≈ 4 × d_model² × n_layers
+传统 Transformer → 混合架构（2026）
+  Attention × N → Mamba × M + Attention × (N-M)
+  
+  Mamba 层：线性复杂度，处理 85%+ 常规序列
+  Transformer 层：精确召回，处理关键信息检索
+
+  代表：NVIDIA Nemotron 3 Ultra（550B MoE）
 ```
 
-**典型配置：**
-
-| 模型 | d_model | n_layers | n_heads | 参数量 |
-|------|---------|----------|---------|--------|
-| GPT-2 | 768 | 12 | 12 | 117M |
-| GPT-3 | 12288 | 96 | 96 | 175B |
-| LLaMA-2-7B | 4096 | 32 | 32 | 7B |
-| LLaMA-2-70B | 8192 | 80 | 64 | 70B |
-
-### 6.2 计算复杂度
-
-**Self-Attention复杂度：**
-- 时间：O(n² × d) - 序列长度的平方
-- 空间：O(n²) - 注意力矩阵存储
-
-**优化方向：**
-- 稀疏注意力（Sparse Attention）
-- 线性注意力（Linear Attention）
-- FlashAttention（IO优化）
+| 方向 | 技术 | 代表 |
+|------|------|------|
+| 线性注意力 | Mamba、RWKV | 长序列高效处理 |
+| 稀疏激活 | MoE（Mixture of Experts） | DeepSeek V4、Nemotron |
+| 长上下文 | YaRN、NTK-aware RoPE | 128K-1M 上下文 |
+| 推理优化 | Multi-token Prediction、Speculative Decoding | Nemotron 3、Medusa |
 
 ---
 
-## 7. 架构师关注点
+## 6. Checklist
 
-### 7.1 设计决策清单
-
-**选择模型架构时考虑：**
-
-- [ ] 任务类型：理解(Encoder) vs 生成(Decoder) vs 两者兼顾
-- [ ] 序列长度：是否需要长文本支持（>4K tokens）
-- [ ] 推理延迟：实时场景需要优化注意力计算
-- [ ] 显存预算：模型规模与部署成本的平衡
-
-### 7.2 关键指标
-
-| 指标 | 说明 | 优化方向 |
-|------|------|----------|
-| FLOPs | 浮点运算次数 | 模型压缩、量化 |
-| Memory Bandwidth | 显存带宽瓶颈 | FlashAttention、KV Cache优化 |
-| Latency | 首Token延迟 | 并行解码、投机解码 |
-| Throughput | 吞吐量 | Continuous Batching |
-
-### 7.3 常见陷阱
-
-1. **忽视位置编码的影响**
-   - 长文本外推能力取决于位置编码设计
-   - 直接外推可能导致性能急剧下降
-
-2. **注意力熵崩溃**
-   - 深层网络注意力趋于均匀分布
-   - 解决方案：LayerNorm前置、残差缩放
-
-3. **KV Cache显存爆炸**
-   - 长序列生成时显存线性增长
-   - 解决方案：PagedAttention、量化缓存
+- [ ] 理解 $Attention(Q,K,V) = softmax(QK^T / \sqrt{d_k})V$ 的四个步骤
+- [ ] 理解多头注意力中每个 head 关注不同关系模式
+- [ ] 理解 RoPE 如何通过旋转矩阵编码相对位置
+- [ ] 知道 FlashAttention、PagedAttention 等 IO 优化技术
+- [ ] 理解 Decoder-only 架构在大规模场景下的优势
+- [ ] 知道 Mamba-Transformer 混合架构是 2026 趋势
+- [ ] 估算 KV Cache 显存：$2 \times n_{layers} \times n_{heads} \times d_{head} \times seq_{len} \times 2\text{bytes}$
 
 ---
 
-## 8. 延伸阅读
+## 7. 延伸阅读
 
 ### 必读论文
-1. [Attention Is All You Need](https://arxiv.org/abs/1706.03762) - Transformer原始论文
-2. [RoFormer](https://arxiv.org/abs/2104.09864) - RoPE位置编码
-3. [LLaMA 2](https://arxiv.org/abs/2307.09288) - 开源大模型架构细节
+1. [Attention Is All You Need](https://arxiv.org/abs/1706.03762) — Transformer 原始论文
+2. [RoFormer](https://arxiv.org/abs/2104.09864) — RoPE 位置编码
+3. [FlashAttention](https://arxiv.org/abs/2205.14135) — IO 感知的精确注意力
+4. [LLaMA 3](https://arxiv.org/abs/2405.20143) — 开源大模型架构细节
+5. [Mamba](https://arxiv.org/abs/2312.00752) — 线性时间序列建模
 
 ### 实践资源
-- [The Illustrated Transformer](https://jalammar.github.io/illustrated-transformer/) - 可视化讲解
-- [Hugging Face Transformers文档](https://huggingface.co/docs/transformers)
+- [The Illustrated Transformer](https://jalammar.github.io/illustrated-transformer/)
+- [Hugging Face Transformers 文档](https://huggingface.co/docs/transformers)
 
 ---
 
-*最后更新：2026-05-07*
+*最后更新: 2026-06-12*

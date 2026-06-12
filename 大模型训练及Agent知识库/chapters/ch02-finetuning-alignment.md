@@ -12,6 +12,13 @@
 
 ---
 
+## 元数据
+- **难度**: ⭐⭐
+- **前置知识**: [预训练技术](../chapters/ch01-pretraining.md)
+- **关联文件**: ../chapters/ch01-pretraining.md, ../chapters/ch03-evaluation-deployment.md, ../appendices/appendix-a-glossary.md
+- **最后更新**: 2026-06-12
+---
+
 ## 1. 有监督微调（SFT）
 
 ### 1.1 SFT概述
@@ -470,6 +477,29 @@ def ties_merging(base_model, *finetuned_models, reset_thresh=20, merge_func="dis
 
 ---
 
+## 深度分析
+
+微调与对齐技术是连接通用预训练模型与具体应用场景的桥梁。SFT（有监督微调）通过指令数据让模型学习遵循人类指令的格式与风格，但单纯依靠SFT往往难以使模型在安全性、有用性等维度上对齐人类偏好。RLHF通过引入奖励模型和PPO优化，将人类偏好信号转化为可优化的目标函数，显著提升了模型输出的质量——这也是ChatGPT获得成功的关键技术之一。然而，RLHF的训练流程复杂、超参数敏感，且需要维护多个模型（策略模型、奖励模型、价值模型、参考模型），计算开销较大。
+
+DPO的出现为偏好对齐提供了一种更简洁的替代方案，它绕过显式的奖励建模，直接在偏好数据上优化策略模型。本章对比了RLHF与DPO的优劣，实践中应根据可用资源和任务特点进行选择。参数高效微调（PEFT）方法（如LoRA、QLoRA）进一步降低了微调的门槛，使得在单卡GPU上也能对数十亿参数的模型进行适配。模型合并（Task Vector、TIES）则为组合多个微调能力提供了灵活的途径——通过任务向量的加性组合或符号选举，可以在不重新训练的情况下融合多个领域的知识。这些技术与[预训练](../chapters/ch01-pretraining.md)阶段的分布式训练和显存优化存在内在联系，本质上都是在有限资源下最大化模型能力的工程实践。
+
+---
+
+## Checklist
+
+- [ ] 掌握 SFT 指令模板的设计（Alpaca、ChatML、Llama 2 格式）
+- [ ] 理解 LoRA 的原理：低秩分解 `W + BA` 的数学含义
+- [ ] 能够使用 PEFT 库在自有数据上完成 LoRA 微调
+- [ ] 理解 QLoRA 中 4-bit 量化如何与 LoRA 协同工作
+- [ ] 掌握 RLHF 三阶段流程：SFT → 奖励建模 → PPO 优化
+- [ ] 理解 DPO 如何简化 RLHF：无需奖励模型的直接偏好优化
+- [ ] 对比 RLHF 与 DPO 的适用场景与优劣
+- [ ] 了解模型合并的两种方法：任务向量合并与 TIES 合并
+- [ ] 能够使用 Transformers + TRL 完成基本的 SFT 和 DPO 训练
+- [ ] 理解 PEFT 方法与预训练显存优化技术的异同
+
+---
+
 ## 本章小结
 
 模型微调与对齐是将Base模型转化为可用产品的关键步骤：
@@ -481,3 +511,17 @@ def ties_merging(base_model, *finetuned_models, reset_thresh=20, merge_func="dis
 5. **模型合并** 可以组合多个微调模型的能力
 
 **下一章：** 我们将学习模型评估与部署技术。
+
+---
+
+## 延伸阅读
+
+- [Training Language Models to Follow Instructions with Human Feedback](https://arxiv.org/abs/2203.02155) — InstructGPT 论文，RLHF 的开创性工作
+- [Direct Preference Optimization: Your Language Model is Secretly a Reward Model](https://arxiv.org/abs/2305.18290) — DPO 原始论文
+- [LoRA: Low-Rank Adaptation of Large Language Models](https://arxiv.org/abs/2106.09685) — 参数高效微调的里程碑工作
+- [QLoRA: Efficient Finetuning of Quantized LLMs](https://arxiv.org/abs/2305.14314) — QLoRA，4-bit 微调的实现
+- [TIES-Merging: Resolving Interference When Merging Models](https://arxiv.org/abs/2306.01708) — TIES 模型合并方法详解
+
+---
+
+*最后更新: 2026-06-12*

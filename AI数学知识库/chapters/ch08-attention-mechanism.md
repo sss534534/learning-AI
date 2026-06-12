@@ -10,6 +10,11 @@
 4. [注意力机制变体](#4-注意力机制变体)
 5. [注意力机制的计算复杂度](#5-注意力机制的计算复杂度)
 
+## 元数据
+- **难度**: ⭐⭐⭐
+- **前置知识**: [第一章：线性代数](./ch01-linear-algebra.md), [第七章：深度学习关键技术](./ch07-deep-learning-techniques.md)
+- **关联文件**: [第九章：Transformer架构](./ch09-transformer.md), [第六章：神经网络基础](./ch06-neural-networks.md)
+- **最后更新**: 2026-06-12
 ---
 
 ## 1. 注意力机制概述
@@ -363,4 +368,30 @@ output = flash_attn_func(
 3. **掩码机制** 控制信息流动（因果、padding）
 4. **Flash Attention** 解决了长序列的计算效率问题
 
-**下一章：** 我们将学习**Transformer架构**，包括完整的编码器和解码器实现。
+## 深度分析
+
+注意力机制是 Transformer 架构的核心创新，其数学形式 $\text{softmax}(QK^T/\sqrt{d_k})V$ 优雅地解决了序列建模中的长距离依赖问题。与 RNN 的串行计算不同，注意力层可以并行计算所有位置的交互，这使得 GPU 的矩阵计算能力得到充分发挥。缩放因子 $\sqrt{d_k}$ 的设置体现了数值稳定性的考量——当 $d_k$ 较大时，点积的方差随维度线性增长，不缩放的话 Softmax 会进入梯度极小的饱和区。
+
+Multi-Head Attention 的设计让模型能够从不同的表示子空间中捕捉信息——某些头关注语法依赖，某些头关注语义相似性，还有一些头关注位置关系。这种并行子空间的学习机制直接影响了 MoE（Mixture of Experts）等后续架构。Flash Attention 通过分块计算和在线 Softmax 将注意力计算的内存复杂度从 $O(L^2)$ 降低到 $O(L)$，使得处理 128K+ 长上下文成为可能，是当前 LLM 推理优化的核心技术之一。
+
+## 核心概念检查
+
+- [ ] 你能推导 Scaled Dot-Product Attention 的完整前向计算过程？
+- [ ] 你能解释为什么缩放因子 $\sqrt{d_k}$ 对注意力梯度的数值稳定至关重要？
+- [ ] 你能说明 Multi-Head Attention 中分头和合并的矩阵变换过程？
+- [ ] 你能分析 Self-Attention 的计算复杂度 $O(L^2 \cdot d)$ 的来源？
+- [ ] 你能解释 Causal Mask 和 Padding Mask 在注意力计算中的实现？
+- [ ] 你能说明 Flash Attention 通过分块（Tiling）和在线 Softmax 减少 HBM 访问的原理？
+- [ ] 你能比较标准 Attention、Linear Attention 和 Sparse Attention 的复杂度与适用场景？
+- [ ] 你能描述 Cross-Attention 与 Self-Attention 在 Query/Key/Value 来源上的区别？
+- [ ] 你能分析注意力头数 $h$ 与每头维度 $d_k$ 的权衡对模型容量的影响？
+- [ ] 你能解释 Grouped Query Attention（GQA）相比标准 Multi-Head Attention 在推理时的 KV Cache 优势？
+
+## 延伸阅读
+
+- [第九章：Transformer架构](./ch09-transformer.md) - 注意力机制在 Transformer 中的完整应用
+- [第一章：线性代数](./ch01-linear-algebra.md) - 注意力计算中的矩阵运算
+- [第七章：深度学习关键技术](./ch07-deep-learning-techniques.md) - Transformer Block 中的关键技术组合
+- [第三章：概率论与统计学](./ch03-probability.md) - Softmax 的概率解释
+
+**最后更新**: 2026-06-12

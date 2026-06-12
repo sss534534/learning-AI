@@ -10,6 +10,11 @@
 4. [Transformer解码器](#4-transformer解码器)
 5. [主流模型架构对比](#5-主流模型架构对比)
 
+## 元数据
+- **难度**: ⭐⭐⭐
+- **前置知识**: [第八章：注意力机制](./ch08-attention-mechanism.md), [第七章：深度学习关键技术](./ch07-deep-learning-techniques.md)
+- **关联文件**: [第一章：线性代数](./ch01-linear-algebra.md), [第四章：信息论](./ch04-information-theory.md)
+- **最后更新**: 2026-06-12
 ---
 
 ## 1. Transformer整体架构
@@ -462,4 +467,30 @@ Transformer架构的核心组件：
 4. **残差连接+LayerNorm** 保证训练稳定性
 5. **FFN** 提供非线性变换能力
 
-**下一章：** 我们将学习**大模型训练与优化**，包括预训练、SFT、RLHF等关键技术。
+## 深度分析
+
+Transformer 架构为大模型提供了统一的框架。自 2017 年提出以来，其核心设计经历了从 Encoder-Decoder（原始 Transformer）到 Decoder-only（GPT 系列）再到 Encoder-only（BERT）的演化。Decoder-only 架构因其自回归生成能力成为 LLM 的主流选择——GPT-3/ChatGPT、LLaMA、ChatGLM 等都采用这种设计。理解架构选择的权衡（双向注意力 vs 因果注意力、Pre-LN vs Post-LN、绝对位置编码 vs RoPE）是设计或选择模型时的重要考量。
+
+位置编码方案的发展反映了对序列外推能力的需求演变。从正弦波编码到可学习编码再到 RoPE（旋转位置编码），每一步都解决了特定痛点——RoPE 通过旋转矩阵将相对位置信息编码进 Query 和 Key 的内积中，使得模型可以推理训练时未见过的更长序列。结合 Flash Attention 和 RoPE，现代 LLM 的上下文窗口从早期的 512 令牌扩展到了 128K 甚至 1M 令牌。此外，LLaMA 使用 SwiGLU 激活函数和分组查询注意力（GQA）在保持效果的同时大幅提升了推理效率。
+
+## 核心概念检查
+
+- [ ] 你能画出完整的 Transformer Encoder-Decoder 架构并标注各组件？
+- [ ] 你能解释为什么 Decoder-only 架构适合作自回归文本生成？
+- [ ] 你能推导正弦波位置编码的公式并解释其外推性质？
+- [ ] 你能说明 RoPE 通过旋转矩阵编码位置信息的数学原理？
+- [ ] 你能比较 Pre-LN 和 Post-LN 架构对训练稳定性和梯度流的影响？
+- [ ] 你能分析 GQA（分组查询注意力）相比标准 MHA 在推理时的 KV Cache 内存节省？
+- [ ] 你能解释 SwiGLU 激活函数 $x \cdot \sigma(x) \cdot W$ 的数学形式及其优势？
+- [ ] 你能描述 FFN 中 $d_{ff}$ 的选择对 Transformer 参数量和计算量的影响？
+- [ ] 你能比较 BERT（Encoder-only）与 GPT（Decoder-only）在注意力机制上的核心差异？
+- [ ] 你能说明 RMSNorm 相比 LayerNorm 在计算效率上的优势及其数学公式简化？
+
+## 延伸阅读
+
+- [第八章：注意力机制](./ch08-attention-mechanism.md) - 注意力机制的数学基础
+- [第七章：深度学习关键技术](./ch07-deep-learning-techniques.md) - LayerNorm、Dropout 等技术
+- [第一章：线性代数](./ch01-linear-algebra.md) - Transformer 中的矩阵运算
+- [第四章：信息论](./ch04-information-theory.md) - 语言模型训练的交叉熵损失
+
+**最后更新**: 2026-06-12
