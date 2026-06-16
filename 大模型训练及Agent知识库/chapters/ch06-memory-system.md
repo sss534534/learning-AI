@@ -1,6 +1,6 @@
 # 第六章：Agent记忆系统
 
-&gt; 记忆系统是Agent的核心组件，让智能体能够存储和检索信息，维持对话连贯性并积累知识。本章将深入讲解短期记忆、长期记忆、记忆检索策略以及记忆压缩与优化技术。
+> 记忆系统是Agent的核心组件，让智能体能够存储和检索信息，维持对话连贯性并积累知识。本章将深入讲解短期记忆、长期记忆、记忆检索策略以及记忆压缩与优化技术。
 
 ## 目录
 
@@ -65,7 +65,7 @@ class ShortTermMemory:
         self.messages: List[Dict] = []
         self.token_count = 0
     
-    def _estimate_tokens(self, text: str) -&gt; int:
+    def _estimate_tokens(self, text: str) -> int:
         """估算文本的token数量（简化版）"""
         # 实际应用中应该使用tiktoken或模型特定的tokenizer
         return len(text) // 4
@@ -89,7 +89,7 @@ class ShortTermMemory:
             removed = self.messages.pop(0)
             self.token_count -= self._estimate_tokens(removed["content"])
     
-    def get_context(self) -&gt; List[Dict]:
+    def get_context(self) -> List[Dict]:
         """获取当前上下文"""
         return self.messages.copy()
     
@@ -117,7 +117,7 @@ class ContextCompressor:
     def __init__(self, llm):
         self.llm = llm
     
-    def summarize_old_messages(self, messages: List[Dict], keep_latest: int = 5) -&gt; List[Dict]:
+    def summarize_old_messages(self, messages: List[Dict], keep_latest: int = 5) -> List[Dict]:
         """压缩旧消息，保留最新的几条"""
         if len(messages) &lt;= keep_latest:
             return messages
@@ -135,7 +135,7 @@ class ContextCompressor:
         
         return compressed_context
     
-    def _summarize_conversation(self, messages: List[Dict]) -&gt; str:
+    def _summarize_conversation(self, messages: List[Dict]) -> str:
         """使用LLM压缩对话历史"""
         conversation_text = "\n".join([
             f"{msg['role']}: {msg['content']}" 
@@ -215,7 +215,7 @@ class VectorDatabase:
         self.items: List[MemoryItem] = []
         self.id_to_index: Dict[str, int] = {}
     
-    def _cosine_similarity(self, vec1: List[float], vec2: List[float]) -&gt; float:
+    def _cosine_similarity(self, vec1: List[float], vec2: List[float]) -> float:
         """计算余弦相似度"""
         a = np.array(vec1)
         b = np.array(vec2)
@@ -232,7 +232,7 @@ class VectorDatabase:
             self.id_to_index[item.id] = len(self.items)
             self.items.append(item)
     
-    def search(self, query_embedding: List[float], top_k: int = 5) -&gt; List[MemoryItem]:
+    def search(self, query_embedding: List[float], top_k: int = 5) -> List[MemoryItem]:
         """语义搜索"""
         if not self.items:
             return []
@@ -255,7 +255,7 @@ class VectorDatabase:
             # 更新索引
             self.id_to_index = {item.id: i for i, item in enumerate(self.items)}
     
-    def get_all(self) -&gt; List[MemoryItem]:
+    def get_all(self) -> List[MemoryItem]:
         """获取所有记忆项"""
         return self.items.copy()
 
@@ -270,7 +270,7 @@ class EmbeddingModel:
         self.client = openai.OpenAI(api_key=api_key)
         self.model = model
     
-    def embed(self, text: str) -&gt; List[float]:
+    def embed(self, text: str) -> List[float]:
         """获取文本嵌入"""
         response = self.client.embeddings.create(
             input=text,
@@ -286,7 +286,7 @@ class LongTermMemory:
         self.vector_db = VectorDatabase()
         self.next_id = 1
     
-    def store(self, content: str, metadata: Optional[Dict] = None) -&gt; str:
+    def store(self, content: str, metadata: Optional[Dict] = None) -> str:
         """存储记忆"""
         # 生成嵌入
         embedding = self.embedding_model.embed(content)
@@ -307,7 +307,7 @@ class LongTermMemory:
         self.vector_db.add(item)
         return item_id
     
-    def retrieve(self, query: str, top_k: int = 5) -&gt; List[MemoryItem]:
+    def retrieve(self, query: str, top_k: int = 5) -> List[MemoryItem]:
         """检索记忆"""
         # 获取查询的嵌入
         query_embedding = self.embedding_model.embed(query)
@@ -359,7 +359,7 @@ class KnowledgeGraph:
     
     def query(self, subject: Optional[str] = None, 
               predicate: Optional[str] = None, 
-              object: Optional[str] = None) -&gt; List[Tuple[str, str, str]]:
+              object: Optional[str] = None) -> List[Tuple[str, str, str]]:
         """查询知识图谱"""
         results = []
         for s, p, o in self.relations:
@@ -369,7 +369,7 @@ class KnowledgeGraph:
                 results.append((s, p, o))
         return results
     
-    def get_entity_properties(self, entity_id: str) -&gt; Dict:
+    def get_entity_properties(self, entity_id: str) -> Dict:
         """获取实体属性"""
         return self.entities.get(entity_id, {})
 
@@ -405,7 +405,7 @@ class SemanticRetriever:
         self.long_term_memory = long_term_memory
     
     def retrieve(self, query: str, top_k: int = 5, 
-                 min_similarity: float = 0.7) -&gt; List[Dict]:
+                 min_similarity: float = 0.7) -> List[Dict]:
         """检索相关记忆"""
         # 从长期记忆中检索
         items = self.long_term_memory.retrieve(query, top_k)
@@ -423,7 +423,7 @@ class SemanticRetriever:
         
         return results
     
-    def retrieve_with_reranking(self, query: str, top_k: int = 5) -&gt; List[Dict]:
+    def retrieve_with_reranking(self, query: str, top_k: int = 5) -> List[Dict]:
         """检索并重排序"""
         # 初始检索
         candidates = self.retrieve(query, top_k * 2)
@@ -433,7 +433,7 @@ class SemanticRetriever:
         
         return reranked[:top_k]
     
-    def _rerank(self, query: str, candidates: List[Dict]) -&gt; List[Dict]:
+    def _rerank(self, query: str, candidates: List[Dict]) -> List[Dict]:
         """使用LLM重排序"""
         # 实际应用中应该使用交叉编码器或LLM进行重排序
         # 这里简化处理
@@ -454,7 +454,7 @@ class KeywordRetriever:
     def __init__(self, long_term_memory: LongTermMemory):
         self.long_term_memory = long_term_memory
     
-    def retrieve(self, query: str, top_k: int = 5) -&gt; List[Dict]:
+    def retrieve(self, query: str, top_k: int = 5) -> List[Dict]:
         """关键词检索"""
         # 提取查询关键词
         keywords = self._extract_keywords(query)
@@ -483,13 +483,13 @@ class KeywordRetriever:
         
         return results
     
-    def _extract_keywords(self, text: str) -&gt; List[str]:
+    def _extract_keywords(self, text: str) -> List[str]:
         """提取关键词（简化版）"""
         # 实际应用中应该使用分词和停用词过滤
         words = re.findall(r'\w+', text.lower())
         return [w for w in words if len(w) &gt; 2]
     
-    def _calculate_keyword_score(self, content: str, keywords: List[str]) -&gt; float:
+    def _calculate_keyword_score(self, content: str, keywords: List[str]) -> float:
         """计算关键词匹配分数"""
         content_lower = content.lower()
         score = 0.0
@@ -510,7 +510,7 @@ class HybridRetriever:
         self.semantic_weight = semantic_weight
         self.keyword_weight = keyword_weight
     
-    def retrieve(self, query: str, top_k: int = 5) -&gt; List[Dict]:
+    def retrieve(self, query: str, top_k: int = 5) -> List[Dict]:
         """混合检索"""
         # 分别获取两种检索结果
         semantic_results = self.semantic_retriever.retrieve(query, top_k * 2)
@@ -521,7 +521,7 @@ class HybridRetriever:
         
         return combined[:top_k]
     
-    def _merge_results(self, semantic: List[Dict], keyword: List[Dict]) -&gt; List[Dict]:
+    def _merge_results(self, semantic: List[Dict], keyword: List[Dict]) -> List[Dict]:
         """合并两种检索结果"""
         # 创建分数字典
         scores = {}
@@ -565,7 +565,7 @@ class TimeWeightedRetriever:
         self.semantic_retriever = semantic_retriever
         self.half_life_seconds = half_life_days * 24 * 3600
     
-    def retrieve(self, query: str, top_k: int = 5) -&gt; List[Dict]:
+    def retrieve(self, query: str, top_k: int = 5) -> List[Dict]:
         """时间加权检索"""
         # 获取基础检索结果
         results = self.semantic_retriever.retrieve(query, top_k * 2)
@@ -597,7 +597,7 @@ class MemorySummarizer:
     def __init__(self, llm):
         self.llm = llm
     
-    def summarize_memories(self, memories: List[Dict], target_length: int = 500) -&gt; str:
+    def summarize_memories(self, memories: List[Dict], target_length: int = 500) -> str:
         """摘要多个记忆"""
         memories_text = "\n\n".join([
             f"- {mem['content']}"
@@ -615,7 +615,7 @@ Concise summary:"""
         
         return self.llm.complete(summary_prompt)
     
-    def compress_memory_group(self, memories: List[Dict]) -&gt; Dict:
+    def compress_memory_group(self, memories: List[Dict]) -> Dict:
         """将一组记忆压缩为单个摘要记忆"""
         summary = self.summarize_memories(memories)
         
@@ -639,7 +639,7 @@ class MemoryScorer:
     def __init__(self, llm):
         self.llm = llm
     
-    def score_importance(self, memory_content: str) -&gt; float:
+    def score_importance(self, memory_content: str) -> float:
         """评分记忆重要性 (0.0 - 1.0)"""
         scoring_prompt = f"""On a scale of 0.0 to 1.0, rate the importance of the 
 following information for long-term retention. Consider:
@@ -661,7 +661,7 @@ Return only a number between 0.0 and 1.0:"""
             return 0.5  # 默认中等重要性
     
     def filter_low_importance(self, memories: List[Dict], 
-                            threshold: float = 0.3) -&gt; List[Dict]:
+                            threshold: float = 0.3) -> List[Dict]:
         """过滤低重要性记忆"""
         filtered = []
         for mem in memories:
@@ -704,7 +704,7 @@ class UnifiedMemorySystem:
                     {"type": "conversation", "role": role}
                 )
     
-    def get_relevant_context(self, query: str, top_k: int = 5) -&gt; Dict:
+    def get_relevant_context(self, query: str, top_k: int = 5) -> Dict:
         """获取相关上下文"""
         # 获取短期记忆
         short_term_context = self.short_term.get_context()
@@ -717,7 +717,7 @@ class UnifiedMemorySystem:
             "long_term": long_term_results
         }
     
-    def format_context_for_llm(self, context: Dict) -&gt; str:
+    def format_context_for_llm(self, context: Dict) -> str:
         """格式化上下文供LLM使用"""
         parts = []
         
@@ -812,7 +812,7 @@ class UnifiedMemorySystem:
 3. **混合检索** 结合语义和关键词检索提高准确率
 4. **记忆压缩** 通过摘要和重要性评分优化存储
 
-**下一章：** 我们将学习Agent的规划与推理机制。
+**下一章：** 我们将学习多Agent协作系统。
 
 ---
 

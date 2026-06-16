@@ -1,6 +1,6 @@
 # 第八章：Agent框架与实践
 
-&gt; 本章将深入介绍主流的Agent开发框架，包括LangChain、AutoGen和Semantic Kernel，并通过实战案例展示如何使用这些框架构建实际应用。
+> 本章将深入介绍主流的Agent开发框架，包括LangChain、AutoGen和Semantic Kernel，并通过实战案例展示如何使用这些框架构建实际应用。
 
 ## 目录
 
@@ -24,7 +24,7 @@
 
 **LangChain** 是目前最流行的LLM应用开发框架，提供了丰富的组件用于构建Agent系统。
 
-**LangChain的核心组件：
+**LangChain的核心组件：**
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -211,10 +211,10 @@ Thought: {agent_scratchpad}"""
 **AutoGen** 是微软开发的多Agent框架，专注于Agent之间的协作与对话。
 
 **AutoGen核心概念：**
-- **AssistantAgent：助手Agent
+- **AssistantAgent：助手Agent**
 - **UserProxyAgent：用户代理Agent
 - **GroupChat：多Agent群聊
-- **ConversableAgent：可对话Agent基类
+- **ConversableAgent：可对话Agent基类**
 
 ### 2.2 基础双Agent对话
 
@@ -931,7 +931,7 @@ Semantic Kernel走的是轻量级路线，以Plugin和Kernel为核心，强调�
 - 多Agent协作：AutoGen
 - 企业级应用：Semantic Kernel
 
-**下一章：** 我们将学习Agent评估与优化方法。
+**下一章：** 暂无后续章节，可回顾前面的内容。
 
 ---
 

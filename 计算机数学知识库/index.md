@@ -124,51 +124,14 @@
 
 ### 第四部分：系统与工程数学
 
-- **[第十二章：数值计算](./part4-systems/ch11-numerical-computing.md)**
-  - 浮点数表示、精度问题
-  - 数值积分、微分方程
-  - 线性方程组求解
-  - 优化算法基础
-
-- **[第十三章：信号与信息处理](./part4-systems/ch12-signal-processing.md)**
-  - 傅里叶变换、离散傅里叶变换
-  - 快速傅里叶变换（FFT）
-  - 小波变换简介
-  - 信号处理在计算机中的应用
-
-- **[第十四章：密码学与安全](./part4-systems/ch13-cryptography.md)**
-  - 对称加密、非对称加密
-  - 哈希函数、数字签名
-  - RSA、椭圆曲线密码学
-  - 零知识证明、同态加密
-
-### 第五部分：AI与机器学习数学
-
-- **[第十五章：线性代数](./part5-ai-ml/ch14-linear-algebra.md)**
-  - 向量、矩阵、张量
-  - 特征值、奇异值分解
-  - 线性变换、矩阵分解
-  - 在深度学习中的应用
-
-- **[第十六章：微积分](./part5-ai-ml/ch15-calculus.md)**
-  - 导数、偏导数、梯度
-  - 链式法则、反向传播
-  - 多元函数优化
-  - 雅克比矩阵、海森矩阵
-
-- **[第十七章：概率与统计](./part5-ai-ml/ch16-probability-statistics.md)**
-  - 概率分布、条件概率
-  - 贝叶斯定理、最大似然估计
-  - 统计推断、假设检验
-  - 概率图模型
-
-- **[第十八章：信息论](./part5-ai-ml/ch17-information-theory.md)**
-  - 熵、相对熵、交叉熵
-  - 互信息、信道容量
-  - 编码理论
-  - 在机器学习中的应用
-
-- **[第十九章：优化理论](./part5-ai-ml/ch18-optimization.md)**
+- **[第十二章：数值计算](./part4-systems/ch12-numerical-computing.md)**
+- **[第十三章：信号与信息处理](./part4-systems/ch13-signal-processing.md)**
+- **[第十四章：密码学与安全](./part4-systems/ch14-cryptography.md)**
+- **[第十五章：线性代数](./part5-ai-ml/ch15-linear-algebra.md)**
+- **[第十六章：微积分](./part5-ai-ml/ch16-calculus.md)**
+- **[第十七章：概率与统计](./part5-ai-ml/ch17-probability-statistics.md)**
+- **[第十八章：信息论](./part5-ai-ml/ch18-information-theory.md)**
+- **[第十九章：优化理论](./part5-ai-ml/ch19-optimization.md)**
   - 梯度下降、牛顿法
   - 凸优化、对偶问题
   - 随机优化、Adam等优化器

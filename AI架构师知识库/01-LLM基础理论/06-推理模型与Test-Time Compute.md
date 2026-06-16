@@ -5,7 +5,7 @@
 ## 元数据
 
 - **难度**: ⭐⭐⭐
-- **前置知识**: [Transformer架构详解](./01-Transformer架构详解.md), [大模型原理与选型](./03-大模型原理与选型.md), [T² Scaling Laws与推理时计算前沿](./08-T² Scaling Laws与推理时计算前沿.md)
+- **前置知识**: [Transformer架构详解](./01-Transformer架构详解.md), [大模型原理与选型](./03-大模型原理与选型.md), [T² Scaling Laws与推理时计算前沿](./09-T%C2%B2%20Scaling%20Laws与推理时计算前沿.md)
 - **关联文件**: [Harness Engineering与推理模型部署](../06-工程实践/02-Harness Engineering与推理模型部署.md), [Agent架构演进](../04-Agent系统架构/01-Agent架构演进.md)
 - **最后更新**: 2026-06-12
 
@@ -21,7 +21,8 @@
 6. [深度分析](#6-深度分析)
 7. [架构师关注点](#7-架构师关注点)
 8. [Checklist](#8-checklist)
-9. [延伸阅读](#9-延伸阅读)
+9. [2026 前沿进展](#9-2026-前沿进展)
+10. [延伸阅读](#10-延伸阅读)
 
 ---
 
@@ -1197,7 +1198,48 @@ Checkpoint = {
 
 ---
 
-## 9. 延伸阅读
+## 9. 2026 前沿进展
+
+### 9.1 Reasoning Floor
+
+非推理模型即使增加 10 倍推理计算也无法追上推理优化权重的基线。通过 RL 内化推理协议比外部搜索方法更有效。
+
+| 方法 | 效果 | 说明 |
+|------|------|------|
+| 内部化推理协议（RL） | 强基线 | 推理模型的核心优势 |
+| 外部搜索（MCTS/ToT） | 收益递减 | 对非推理模型效果有限 |
+| 蒸馏推理能力 | 可行 | 将推理模型能力迁移到小模型 |
+
+### 9.2 IBM ASTER / I3 Agent
+
+结构化 Agent 逻辑显著优于裸 ReAct + Frontier Model 的组合：
+
+| 指标 | ASTER (Devstral 24B) | ReAct + GPT-5.1 | 提升 |
+|------|---------------------|-----------------|------|
+| 行覆盖 | +20-45% | 基线 | 显著提高 |
+| Token消耗 | 低 15x | 基线 | 大幅降低 |
+| 综合性能 | 4x | 基线 | I3 Agent 表现 |
+
+**启示：** Agent 架构设计和结构化推理比单纯依赖强模型更有效。
+
+### 9.3 T² Scaling Laws
+
+当 Test-Time Compute（通过重复采样）被纳入训练决策时，最优模型更小更过度训练。标准 Chinchilla 比例在考虑推理预算时不再最优。
+
+参见 [T² Scaling Laws与推理时计算前沿](./09-T%C2%B2%20Scaling%20Laws与推理时计算前沿.md) 的完整分析。
+
+### 9.4 2026 推理模型谱系更新
+
+| 模型 | 时间 | 参数量 | 架构 | 关键特性 |
+|------|------|--------|------|---------|
+| Claude Opus 4.8 | 2026-05 | 未公开 | Dense+RL | Dynamic Workflows，parallel subagent |
+| Nemotron 3 Ultra | 2026-06 | 550B MoE | Mamba-Transformer Hybrid | Agent 编排优化，NVFP4量化 |
+| GPT-5.x | 2026 | 未公开 | - | - |
+| DeepSeek V4 | 2026 | 未公开 | - | - |
+
+---
+
+## 10. 延伸阅读
 
 ### 必读论文
 1. [Scaling LLM Test-Time Compute](https://arxiv.org/abs/2408.03314) — Test-Time Compute扩展定律
@@ -1207,7 +1249,7 @@ Checkpoint = {
 5. [Scaling Relationship Between Learning and Reasoning](https://arxiv.org/abs/2502.12236) — 推理与学习的缩放关系
 
 ### 关键论文扩展
-- [T² Scaling Laws与推理时计算前沿](./08-T²%20Scaling%20Laws与推理时计算前沿.md) — 联合优化范式的深度分析
+- [T² Scaling Laws与推理时计算前沿](./09-T%C2%B2%20Scaling%20Laws与推理时计算前沿.md) — 联合优化范式的深度分析
 - [Harness Engineering与推理模型部署](../06-工程实践/02-Harness%20Engineering与推理模型部署.md) — 生产部署最佳实践
 - [Agent架构演进](../04-Agent系统架构/01-Agent架构演进.md) — 推理模型在 Agent 系统中的角色
 
@@ -1218,4 +1260,4 @@ Checkpoint = {
 
 ---
 
-*最后更新：2026-06-12*
+*最后更新：2026-06-15*

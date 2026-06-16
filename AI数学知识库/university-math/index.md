@@ -26,7 +26,7 @@
 - **[第2章：向量代数与空间解析几何](./advanced-mathematics/ch02-vector-algebra.md)** - 向量运算、平面与直线、空间曲线曲面
 - **[第3章：多元函数微分学](./advanced-mathematics/ch03-multivariable-differential.md)** - 方向导数、梯度、泰勒公式
 - **[第4章：常微分方程](./advanced-mathematics/ch04-ode.md)** - 一阶、二阶线性ODE、求解方法
-- **[第5章：偏微分方程基础](./advanced-mathematics/ch05-pde.md)** - 热方程、波动方程、拉普拉斯方程
+- **[第5章：偏微分方程基础](./advanced-mathematics/ch05-pde.md)**（待创建） - 热方程、波动方程、拉普拉斯方程
 
 ### 第三部分：概率论与数理统计
 - **[第1章：概率论基础](./probability-statistics/ch01-probability-basics.md)** - 概率空间、条件概率、独立性
@@ -35,21 +35,21 @@
 - **[第4章：数字特征](./probability-statistics/ch04-moments.md)** - 期望、方差、协方差、矩母函数
 - **[第5章：大数定律与中心极限定理](./probability-statistics/ch05-limit-theorems.md)** - 收敛性、LLN、CLT
 - **[第6章：数理统计基础](./probability-statistics/ch06-statistics.md)** - 抽样分布、参数估计、假设检验
-- **[第7章：回归分析与多元统计](./probability-statistics/ch07-regression.md)** - 线性回归、Logistic回归、主成分分析
+- **[第7章：回归分析与多元统计](./probability-statistics/ch07-regression.md)**（待创建） - 线性回归、Logistic回归、主成分分析
 
 ### 第四部分：泛函分析
 - **[第1章：度量空间与拓扑](./functional-analysis/ch01-metric-space.md)** - 度量空间、开集闭集、收敛性
 - **[第2章：赋范空间与内积空间](./functional-analysis/ch02-normed-space.md)** - 范数、内积、希尔伯特空间
 - **[第3章：线性算子与对偶](./functional-analysis/ch03-linear-operator.md)** - 线性算子、有界算子、对偶空间
 - **[第4章：变分法](./functional-analysis/ch04-calculus-variations.md)** - 泛函极值、欧拉-拉格朗日方程
-- **[第5章：分布与傅里叶变换](./functional-analysis/ch05-distributions-fourier.md)** - 广义函数、傅里叶变换
+- **[第5章：分布与傅里叶变换](./functional-analysis/ch05-distributions-fourier.md)**（待创建） - 广义函数、傅里叶变换
 
 ### 第五部分：其他数学学科
-- **[第1章：复变函数基础](./other-math/ch01-complex-analysis.md)** - 复变函数、解析函数、复积分
-- **[第2章：代数结构](./other-math/ch02-algebra.md)** - 群、环、域、模
-- **[第3章：拓扑学基础](./other-math/ch03-topology.md)** - 拓扑空间、同伦、同调
-- **[第4章：组合数学](./other-math/ch04-combinatorics.md)** - 计数、图论、组合优化
-- **[第5章：博弈论](./other-math/ch05-game-theory.md)** - 纳什均衡、博弈类型
+- **[第1章：复变函数基础](./other-math/ch01-complex-analysis.md)**（待创建） - 复变函数、解析函数、复积分
+- **[第2章：代数结构](./other-math/ch02-algebra.md)**（待创建） - 群、环、域、模
+- **[第3章：拓扑学基础](./other-math/ch03-topology.md)**（待创建） - 拓扑空间、同伦、同调
+- **[第4章：组合数学](./other-math/ch04-combinatorics.md)**（待创建） - 计数、图论、组合优化
+- **[第5章：博弈论](./other-math/ch05-game-theory.md)**（待创建） - 纳什均衡、博弈类型
 
 ---
 
@@ -127,4 +127,4 @@
 
 ---
 
-*最后更新：2026-05-13*
+*最后更新：2026-06-12*

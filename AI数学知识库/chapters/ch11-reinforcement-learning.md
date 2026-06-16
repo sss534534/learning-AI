@@ -13,7 +13,7 @@
 
 ## 元数据
 - **难度**: ⭐⭐⭐
-- **前置知识**: [ch04-probability.md], [ch06-calculus.md]
+- **前置知识**: [ch03-probability.md](./ch03-probability.md), [ch02-calculus.md](./ch02-calculus.md)
 - **关联文件**: [ch10-llm-training.md], [ch13-reasoning-models-math.md]
 - **最后更新**: 2026-06-12
 

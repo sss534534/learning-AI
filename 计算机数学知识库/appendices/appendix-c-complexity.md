@@ -2,6 +2,13 @@
 
 > 整理常见算法和数据结构操作的时间、空间复杂度，方便快速查阅。
 
+## 元数据
+
+- **难度**: ⭐⭐
+- **前置知识**: ch04-ch06
+- **关联文件**: [../part2-algorithms/ch04-algorithm-analysis.md](../part2-algorithms/ch04-algorithm-analysis.md)
+- **最后更新**: 2026-06-12
+
 ---
 
 ## 1. 排序算法
@@ -170,4 +177,6 @@ O(1) < O(log log n) < O(log n) < O(√n) < O(n) < O(n log n) < O(n²) < O(2ⁿ) 
 | 最小生成树 | Prim/Kruskal | O(E log V) |
 | 字符串匹配 | KMP | O(n + m) |
 | 矩阵乘法 | Strassen | O(n².81) |
+
+*最后更新：2026-06-12*
 

@@ -14,7 +14,7 @@
 
 ## 元数据
 - **难度**: ⭐⭐
-- **前置知识**: ../chapters/ch04-llm-api.md
+- **前置知识**: ../chapters/ch04-agent-architecture.md
 - **关联文件**: ../chapters/ch06-memory-system.md, ../chapters/ch08-agent-frameworks.md
 - **最后更新**: 2026-06-12
 ---

@@ -12,7 +12,7 @@
 
 ## 元数据
 - **难度**: ⭐⭐⭐
-- **前置知识**: [ch01-linear-algebra.md], [ch04-probability.md]
+- **前置知识**: [ch01-linear-algebra.md](./ch01-linear-algebra.md), [ch03-probability.md](./ch03-probability.md)
 - **关联文件**: [ch15-diffusion-models.md], [ch12-graph-neural-networks.md]
 - **最后更新**: 2026-06-12
 
