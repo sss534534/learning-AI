@@ -35,6 +35,138 @@ Prompt = 指令(Instruction) + 上下文(Context) + 输入(Input) + 输出格式
 【输出格式】只输出翻译结果，不加解释
 ```
 
+### 1.3 从Prompt设计到Prompt工程
+
+架构师应当区分三个层次：
+
+| 层次 | 视角 | 关注点 | 角色 |
+|------|------|--------|------|
+| **Prompt设计** | 个体 | 怎么写好一条Prompt | 开发者/PM |
+| **Prompt工程** | 系统 | 如何管理生产环境的Prompt集合 | 架构师 |
+| **Prompt治理** | 组织 | 跨团队的Prompt策略、合规、复用 | 技术管理者 |
+
+### 1.4 Prompt的版本管理理论
+
+**为什么Prompt需要版本管理？**
+- 模型更新（GPT-4o → GPT-5.1）可能导致旧Prompt退化
+- 同一Prompt在不同模型上表现不同（非迁移性）
+- 生产环境需要回滚能力
+
+```
+Prompt版本化三要素:
+
+1. Prompt本体 = 模板 + 变量 + 约束
+   例: "请翻译{content}为{target_lang}，格式要求：{format}"
+
+2. 元数据 = 模型ID + 温度 + Token限制 + 预期行为
+   例: {model: "claude-3.5", temp: 0.3, max_tokens: 500}
+
+3. 评估结果 = 准确率 + 成本 + 延迟 (p50/p99)
+   例: {accuracy: 0.92, cost_per_call: 0.003, latency_p50: 1200ms}
+```
+
+**实际版本化示例：**
+
+```
+prompts/
+└── translation/
+    ├── v1.0.yaml          # 初始版本
+    │   template: "请将{content}翻译为{lang}"
+    │   model: claude-3.5
+    │   eval: {acc: 0.85, cost: 0.002}
+    ├── v1.1.yaml          # 加few-shot示例
+    │   template: "请将{content}翻译为{lang}\n示例：..."
+    │   model: claude-3.5
+    │   eval: {acc: 0.91, cost: 0.003}
+    └── v1.2.yaml          # 模型升级+prompt优化
+        template: "请将{content}翻译为{lang}\n示例：..."
+        model: claude-4-sonnet
+        eval: {acc: 0.95, cost: 0.005}
+```
+
+### 1.5 Prompt退化检测
+
+**退化模式：**
+
+| 退化类型 | 表现 | 常见原因 | 检测方式 |
+|---------|------|---------|---------|
+| 概念漂移 | 同一Prompt效果越来越差 | 底层模型微调/蒸馏导致行为变化 | 每日评估pipeline |
+| 格式偏移 | 输出格式不符合预期 | 模型更新影响了token分布 | 结构化输出验证 |
+| 成本膨胀 | Token消耗增加 | 模型回复变长/重复 | Token用量监控 |
+| 安全偏移 | 拒绝率/违规率变化 | 安全对齐调整 | 安全评估集 |
+| 幻觉增加 | 事实性错误增多 | 模型知识边界变化 | 事实性验证集 |
+
+**退化检测流程：**
+
+```
+每日凌晨自动运行：
+  1. 加载生产环境的Prompt v1.2
+  2. 对评估集（500条）执行推理
+  3. 计算质量指标：准确率、格式合规率、Token消耗
+  4. 与基线（v1.2上线时的指标）对比
+  5. 偏差超过阈值（±5%）→ 告警
+  6. 触发回滚或重新评估
+```
+
+### 1.6 Prompt治理框架
+
+```
+Prompt治理四要素：
+
+1. 注册中心 (Registry)
+   ├─ 所有Prompt统一注册，全局唯一ID
+   ├─ 记录依赖关系（哪些应用/Agent使用）
+   └─ 记录历史版本和变更原因
+
+2. 生命周期 (Lifecycle)
+   ├─ DRAFT → REVIEW → TEST → STAGING → PRODUCTION → DEPRECATED
+   ├─ 每个阶段有对应的审批和验证
+   └─ PRODUCTION必须有A/B测试数据支撑
+
+3. 评估体系 (Evaluation)
+   ├─ 每条Prompt在评估集上有基线指标
+   ├─ 变更必须通过回归测试
+   └─ 质量下降自动阻止上线
+
+4. 成本管理 (Cost)
+   ├─ 每条Prompt的成本跟踪（Token消耗）
+   ├─ 长Prompt自动告警
+   └─ 定期清理僵尸Prompt（30天未使用）
+```
+
+### 1.7 Prompt A/B测试
+
+```python
+# Prompt A/B测试的统计框架
+
+def ab_test_prompt(
+    control_template: str,    # 当前生产版本
+    variant_template: str,    # 候选版本
+    sample_size: int = 1000,  # 每组的样本量
+    metrics: list = ["accuracy", "cost_per_call", "latency_p50"],
+    min_effect: float = 0.02  # 最小可检测效果（2个百分点）
+):
+    """
+    A/B测试设计原则：
+    
+    1. 随机分流 — 用户/请求级别的随机分配
+    2. 双盲 — 评估者不知道哪个是control/variant
+    3. 统计显著性 — p < 0.05 或贝叶斯因子 > 3
+    4. 最小样本量计算 — 基于基线指标和期望提升
+    """
+    n = calculate_min_sample_size(
+        baseline=0.85,        # 基线准确率85%
+        effect=min_effect,     # 期望检测2%提升
+        alpha=0.05,           # 显著性水平
+        power=0.80,           # 统计功效
+    )
+    # 输出: 每组需要 ~750 样本
+    
+    # 运行A/B测试...
+    # 分析结果：不仅要看均值，还要看分布
+    # 副作用检查：是否引入安全违规、是否增加延迟方差
+```
+
 ---
 
 ## 2. Prompt设计模式

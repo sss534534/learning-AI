@@ -149,9 +149,17 @@ Client                                          Server
 | 容器编排 | Kubernetes | 生态成熟、自动扩缩容、滚动更新 |
 | 监控 | Prometheus + Grafana | 云原生标准、社区丰富 |
 
----
+### 2.5 替代方案分析
 
-## 3. MCP Server开发实战
+| 决策点 | 未选方案 | 未选理由 |
+|--------|---------|---------|
+| MCP SDK | 自研SDK | 官方SDK已覆盖核心功能，自研成本高且维护负担重 |
+| 传输协议 | SSE (Server-Sent Events) | SSE是单向推送，不适合远程部署；Streamable HTTP支持请求-响应和双向流 |
+| 服务注册 | etcd | etcd适合小规模强一致性场景，但不适合多数据中心的服务发现 |
+| 服务注册 | Nacos | 虽然功能丰富，但Java依赖重，与MCP的Python/Go生态不匹配 |
+| 网关 | Kong/Apigee | 传统API网关不了解MCP协议，无法实现MCP特有的工具发现和Schema路由 |
+
+**原则：** 协议层优先使用官方推荐实现，基础设施层优先与团队现有技术栈一致。
 
 ### 3.1 项目结构
 

@@ -6,7 +6,7 @@
 
 - **难度**: ⭐⭐
 - **前置知识**: [Transformer架构详解](../01-LLM基础理论/01-Transformer架构详解.md)
-- **关联文件**: [Agent协议与通信架构](./03-Agent协议与通信架构.md), [框架格局总览2026](../09-Agent框架生态/01-框架格局总览2026.md), [LangGraph与CrewAI实战对比](../09-Agent框架生态/02-LangGraph与CrewAI实战对比.md), [AI-Agent开发实战](../../AI应用工程师知识库/03-Agent开发/01-AI-Agent开发实战.md)
+- **关联文件**: [Agent协议与通信架构](./03-Agent协议与通信架构.md), [AgentOS架构与运行时](./10-AgentOS架构与运行时.md), [框架格局总览2026](../09-Agent框架生态/01-框架格局总览2026.md)
 - **最后更新**: 2026-06-12
 
 ---

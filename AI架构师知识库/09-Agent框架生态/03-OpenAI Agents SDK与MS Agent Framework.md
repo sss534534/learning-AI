@@ -163,11 +163,95 @@ result = await agent.run(
 
 ## 深度分析
 
-OpenAI Agents SDK 和 Microsoft Agent Framework 代表了 Agent 框架的两条截然不同的路线：轻量 SDK vs 重量级平台。OpenAI 从 Swarm 的实验性质走向生产级 SDK，核心卖点是 Safety Guardrails、Managed Hosting 和 GPT-5.x 深度集成；微软则从 AutoGen 走向 Semantic Kernel 统一框架，核心卖点是 Entra ID 企业身份、Purview 合规和 Microsoft 365 生态。
+OpenAI Agents SDK 和 Microsoft Agent Framework 代表了 Agent 框架的两条截然不同的路线：轻量 SDK vs 重量级平台。
 
-选型的本质是生态绑定决策。使用 OpenAI Agents SDK 意味着信任 OpenAI 的模型能力和托管服务，适合初创到中型团队追求快速上线；使用 Microsoft Agent Framework 意味着接受微软云生态，适合已在 Microsoft 365 内的中大型企业。两者的定价模型（按 Token 计费 vs $15/用户/月）也反映了不同的商业模式。
+### 选型本质：生态绑定决策
 
-协议支持方面，两者都支持 MCP，但微软额外支持 A2A（Agent-to-Agent）协议，这可能成为企业级跨系统协作的关键差异化能力。对于需要自主可控的团队，开源框架可能是更好的选择。
+```
+你的技术栈位置决定框架选择:
+
+    已在 OpenAI API 生态
+        → Agents SDK（最小阻力路径，完整的GPT集成）
+        → 风险：模型切换成本高，定价权在OpenAI
+    
+    已在 Microsoft 365/ Azure 生态
+        → MS Agent Framework（Entra ID + Purview天然集成）
+        → 风险：云平台锁定
+    
+    两者都不是
+        → 开源框架（LangGraph/CrewAI/Hermes）
+        → 优势：无供应商锁定
+        → 成本：需要自建运行时和可观测性
+
+原则：框架选择应当从你的现有生态出发，而非从功能列表出发。
+```
+
+### 供应商锁定深度分析
+
+| 锁定层级 | OpenAI Agents SDK | MS Agent Framework |
+|---------|-------------------|-------------------|
+| **模型层** | 极高（只能用OpenAI模型） | 中（支持多模型但运行时是Azure） |
+| **运行时层** | 高（托管在OpenAI） | 高（Azure托管或自托管但集成Azure） |
+| **身份层** | 低（API Key） | 极高（Entra ID深度绑定） |
+| **数据层** | 中（数据在OpenAI处理） | 低（数据在自有Azure租户） |
+| **协议层** | 低（MCP兼容） | 低（MCP + A2A兼容） |
+| **工具生态** | 中（OpenAI定义的tool schema） | 中（Microsoft 365工具绑定） |
+
+**迁移可行性：**
+- Agents SDK → 开源：中（逻辑可重构，但需自建运行时）
+- MS Agent Framework → 开源：高（Entra ID和Purview的替代品难找）
+
+### 经济模型对比
+
+| 维度 | OpenAI Agents SDK | MS Agent Framework |
+|------|-------------------|-------------------|
+| 定价 | 按Token（随用量线性增长） | $15/用户/月（固定成本） |
+| 盈亏平衡点 | 月Token消耗 > $15×用户数时微软更便宜 | 同左 |
+| 规模化成本 | 边际成本递减（批量折扣） | 边际成本为零（已付固定月费） |
+| 隐性成本 | 数据迁出成本、模型切换成本 | Entra ID管理、Azure资源费用 |
+
+```
+盈亏平衡分析示例（1000用户团队）:
+
+OpenAI Agents SDK:
+  假设人均月Token消耗: 500K TPM × 30天 = 15M tokens
+  成本: 15M × $0.003/1K = $45/月/用户
+  总成本: $45,000/月
+
+MS Agent Framework:
+  固定成本: $15 × 1000 = $15,000/月
+  (不含Azure基础设施)
+
+结论: Token消耗量大的场景，微软的固定定价更划算
+反之: Token消耗量小的场景（轻量Agent），OpenAI按量计费更灵活
+```
+
+### 框架成熟度评估
+
+```
+选择商业框架前的评估清单：
+
+1. 运行时依赖
+   ├─ 如果OpenAI/微软服务宕机，你的Agent还能跑吗？
+   └─ 是否有降级策略？备用框架？
+
+2. 数据主权
+   ├─ Agent处理的数据会离开你的网络边界吗？
+   ├─ 合规审计能否覆盖第三方的处理？
+   └─ 数据的删除和迁移是否有保障？
+
+3. 成本可预测性
+   ├─ Token消耗的上限能控制吗？
+   ├─ 预算超标时自动熔断？
+   └─ 成本归因到部门/项目？
+
+4. 长期演进
+   ├─ 框架的API稳定性如何？
+   ├─ 大版本升级的迁移成本？
+   └─ 社区活跃度和商业可持续性？
+```
+
+协议方面，两者都支持 MCP，微软额外支持 A2A。对于需要跨系统 Agent 协作的企业场景，A2A 可能是关键差异化能力。但对于简单的单 Agent 场景，这个差异不影响选型。
 
 ## Checklist
 
