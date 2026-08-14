@@ -5,7 +5,7 @@
 ## 元数据
 - **难度**: ⭐⭐
 - **前置知识**: [[01-Agent基础架构]], [[02-Multi-Agent协作架构]]
-- **关联文件**: [[03-OpenAI Agents SDK与MS Agent Framework]], [[04-开源框架Hermes与ClaudeCode]]
+- **关联文件**: [[03-OpenAI Agents SDK与MS Agent Framework]], [[04-开源框架Hermes与ClaudeCode]], [[05-Agent脚手架与快速启动工具生态]], [[06-生产级框架选型批判性决策指南]]
 - **最后更新**: 2026-06-12
 
 ## 1. 设计哲学对比
@@ -230,6 +230,8 @@ LangGraph 与 CrewAI 代表了 Agent 框架设计的两种截然不同的哲学�
 
 - [[03-OpenAI Agents SDK与MS Agent Framework]] — 商业框架的对比参考
 - [[04-开源框架Hermes与ClaudeCode]] — 开源生态的另一极
+- [[05-Agent脚手架与快速启动工具生态]] — 脚手架 CLI（AgentStack/AgentX-Kit）与低代码平台选型
+- [[06-生产级框架选型批判性决策指南]] — 五模式批判性框架选型，识别每个选型的致命坑
 - [[02-Multi-Agent协作架构]] — 框架底层协作模式的理论基础
 - [[01-Agent基础架构]] — 框架之上的架构设计原则
 - [[04-Agent架构评审方法论]] — 框架选型的评审维度
